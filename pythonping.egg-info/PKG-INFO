@@ -1,0 +1,11 @@
+Metadata-Version: 1.0
+Name: pythonping
+Version: 0.1
+Summary: A simple way to ping in Python
+Home-page: https://github.com/alessandromaggio/pythonping
+Author: Alessandro Maggio
+Author-email: me@alessandromaggio.com
+License: MIT
+Description: UNKNOWN
+Keywords: ping,icmp,network
+Platform: UNKNOWN
