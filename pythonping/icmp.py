@@ -190,6 +190,18 @@ class ICMP:
         """Length of the ICMP header"""
         return len(self._header())
 
+    @staticmethod
+    def generate_from_raw(raw):
+        """Creates a new ICMP representation from the raw bytes
+
+        :param raw: The raw packet including payload
+        :type raw: bytes
+        :return: An ICMP instance representing the packet
+        :rtype: ICMP"""
+        packet = ICMP()
+        packet.unpack(raw)
+        return packet
+
     def unpack(self, raw):
         """Unpacks a raw packet and stores it in this object
 
@@ -201,4 +213,3 @@ class ICMP:
             self.id, \
             sequence = struct.unpack("bbHHh", raw[20:28])
         self.payload = raw[28:]
-
