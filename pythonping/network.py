@@ -17,7 +17,7 @@ class Socket:
         :param options: Options to set on the socket
         :type options: tuple
         :param source: Source IP to use - implemented in future releases
-        :type source: str"""
+        :type source: Union[None, str]"""
         self.destination = socket.gethostbyname(destination)
         self.protocol = socket.getprotobyname(protocol)
         if source is not None:
@@ -31,7 +31,7 @@ class Socket:
 
         :param packet: The raw packet to send
         :type packet: bytes"""
-        self.socket.sendto(packet, (self.destination, 1))
+        self.socket.sendto(packet, (self.destination, 0))
 
     def receive(self, timeout=2):
         """Listen for incoming packets until timeout

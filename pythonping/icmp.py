@@ -17,8 +17,8 @@ def checksum(data):
     subtotal = 0
     for i in range(0, len(data)-1, 2):
         subtotal += ((data[i] << 8) + data[i+1])                # Sum 16 bits chunks together
-    if len(data) % 2:
-        subtotal += data[len(data)-1]                           # Sum the last byte if length was odd
+    if len(data) % 2:                                           # If length is odd
+        subtotal += (data[len(data)-1] << 8)                    # Sum the last byte plus one empty byte of padding
     while subtotal >> 16:                                       # Add carry on the right until fits in 16 bits
         subtotal = (subtotal & 0xFFFF) + (subtotal >> 16)
     check = ~subtotal                                           # Performs the one complement
@@ -152,7 +152,7 @@ class ICMP:
         if identifier is None:
             identifier = os.getpid()
         self.id = identifier & 0xFFFF           # Prevent identifiers bigger than 16 bits
-        self.received_checksum = 0
+        self.received_checksum = None
 
     @property
     def packet(self):
@@ -166,6 +166,7 @@ class ICMP:
         :type check: int
         :return: The packed header
         :rtype: bytes"""
+        # TODO implement sequence number
         return struct.pack("bbHHh",
                            self.message_type,
                            self.message_code,
