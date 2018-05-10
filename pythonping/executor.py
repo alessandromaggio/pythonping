@@ -1,6 +1,6 @@
 """Module that actually performs the ping, sending and receiving packets"""
 
-import os
+import os, sys
 from . import icmp
 from . import network
 
@@ -27,8 +27,15 @@ class Message:
         :type source_socket: network.Socket"""
         source_socket.send(self.packet.packet)
 
-    def __repr__(self):
-        return "{0}->{1}: {2}".format(self.source, self.target, self.packet.packet)
+
+def represent_seconds_in_ms(seconds):
+    """Converts seconds into human-readable milliseconds with 2 digits decimal precision
+
+    :param seconds: Seconds to convert
+    :type seconds: Union[int, float]
+    :return: The same time expressed in milliseconds, with 2 digits of decimal precision
+    :rtype: float"""
+    return round(seconds * 1000, 2)
 
 
 class Response:
@@ -42,35 +49,95 @@ class Response:
         :type time_elapsed: float"""
         self.message = message
         self.time_elapsed = time_elapsed
+        self.success = False
+        if self.message is not None and self.message.packet.message_type == 0 and self.message.packet.message_code == 0:
+            # This is a echo reply
+            self.success = True
+
+    @property
+    def time_elapsed_ms(self):
+        return represent_seconds_in_ms(self.time_elapsed)
 
     def __repr__(self):
-        return 'msg={0}; time={1}'.format(self.message, self.time_elapsed)
+        if self.message is None:
+            return 'Request timed out'
+        elif self.success:
+            return 'Reply from {0}, {1} bytes in {2}ms'.format(self.message.source,
+                                                               len(self.message.packet.packet),
+                                                               self.time_elapsed_ms)
+        else:
+            # Not successful, but with some code (e.g. destination unreachable)
+            # TODO implement better error handling
+            return 'Generic error in {0}ms'.format(self.time_elapsed_ms)
 
 
 class ResponseList:
     """Represents a series of ICMP responses"""
-    def __init__(self, initial_set=None):
+    def __init__(self, initial_set=None, verbose=False, output=sys.stdout):
         """Creates a ResponseList with initial data if available
 
         :param initial_set: Already existing responses
-        :type initial_set: list"""
+        :type initial_set: list
+        :param verbose: Flag to enable verbose mode, defaults to False
+        :type verbose: bool
+        :param output: File where to write verbose output, defaults to stdout
+        :type output: file"""
         self.clear()
+        self.verbose = verbose
+        self.output = output
+        self.rtt_avg = 0
+        self.rtt_min = 0
+        self.rtt_max = 0
         if initial_set is not None:
             self._responses = initial_set
+
+    @property
+    def rtt_min_ms(self):
+        return represent_seconds_in_ms(self.rtt_min)
+
+    @property
+    def rtt_max_ms(self):
+        return represent_seconds_in_ms(self.rtt_max)
+
+    @property
+    def rtt_avg_ms(self):
+        return represent_seconds_in_ms(self.rtt_avg)
 
     def clear(self):
         self._responses = []
 
     def append(self, value):
         self._responses.append(value)
+        if len(self) == 1:
+            self.rtt_avg = value.time_elapsed
+            self.rtt_max = value.time_elapsed
+            self.rtt_min = value.time_elapsed
+        else:
+            # Calculate the total of time, add the new value and divide for the new number
+            self.rtt_avg = ((self.rtt_avg * (len(self)-1)) + value.time_elapsed) / len(self)
+            if value.time_elapsed > self.rtt_max:
+                self.rtt_max = value.time_elapsed
+            if value.time_elapsed < self.rtt_min:
+                self.rtt_min = value.time_elapsed
+        if self.verbose:
+            print(value, file=self.output)
+
+    def __len__(self):
+        return len(self._responses)
 
     def __repr__(self):
-        return str(self._responses)
+        ret = ''
+        for response in self._responses:
+            ret += '{0}\r\n'.format(response)
+        ret += '\r\n'
+        ret += 'Round Trip Times min/avg/max is {0}/{1}/{2} ms'.format(self.rtt_min_ms, self.rtt_avg_ms, self.rtt_max_ms)
+        return ret
 
 
 class Communicator:
     """Instance actually communicating over the network, sending messages and handling responses"""
-    def __init__(self, target, payload_provider, timeout, socket_options=(), seed_id=None):
+    def __init__(self, target, payload_provider, timeout, socket_options=(), seed_id=None,
+                 verbose=False, output=sys.stdout):
         """Creates an instance that can handle communication with the target device
 
         :param target: IP or hostname of the remote device
@@ -82,11 +149,15 @@ class Communicator:
         :param socket_options: Options to specify for the network.Socket
         :type socket_options: tuple
         :param seed_id: The first ICMP packet ID to use
-        :type seed_id: Union[None, int]"""
+        :type seed_id: Union[None, int]
+        :param verbose: Flag to enable verbose mode, defaults to False
+        :type verbose: bool
+        :param output: File where to write verbose output, defaults to stdout
+        :type output: file"""
         self.socket = network.Socket(target, 'icmp', source=None, options=socket_options)
         self.provider = payload_provider
         self.timeout = timeout
-        self.responses = ResponseList()
+        self.responses = ResponseList(verbose=verbose, output=output)
         self.seed_id = seed_id
         if self.seed_id is None:
             self.seed_id = os.getpid() & 0xFFFF

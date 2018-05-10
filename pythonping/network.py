@@ -37,7 +37,7 @@ class Socket:
         """Listen for incoming packets until timeout
 
         :param timeout: Time after which stop listening
-        :type timeout: int
+        :type timeout: Union[int, float]
         :return: The packet, the remote socket, and the time left before timeout
         :rtype: (bytes, tuple, float)"""
         time_left = timeout
