@@ -41,7 +41,6 @@ class Repeat(PayloadProvider):
         :type pattern: bytes
         :param count: How many payloads to generate
         :type count: int"""
-        # TODO using str(utf8) adds extra byte at the beginning to indicate little endian, replace pattern type?
         self.pattern = pattern
         self.count = count
         self._counter = 0

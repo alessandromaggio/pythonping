@@ -49,10 +49,46 @@ class Response:
         :type time_elapsed: float"""
         self.message = message
         self.time_elapsed = time_elapsed
-        self.success = False
-        if self.message is not None and self.message.packet.message_type == 0 and self.message.packet.message_code == 0:
-            # This is a echo reply
-            self.success = True
+
+    @property
+    def success(self):
+        return self.error_message is None
+
+    @property
+    def error_message(self):
+        if self.message is not None:
+            return 'No response'
+        else:
+            if self.message.packet.message_type == 0 and self.message.packet.message_code == 0:
+                # Echo Reply, response OK - no error
+                return None
+            elif self.message.packet.message_type == 3:
+                # Destination unreachable, returning more details based on message code
+                unreachable_messages = [
+                    'Network Unreachable',
+                    'Host Unreachable',
+                    'Protocol Unreachable',
+                    'Port Unreachable',
+                    'Fragmentation Required',
+                    'Source Route Failed',
+                    'Network Unknown',
+                    'Host Unknown',
+                    'Source Host Isolated',
+                    'Communication with Destination Network is Administratively Prohibited',
+                    'Communication with Destination Host is Administratively Prohibited',
+                    'Network Unreachable for ToS',
+                    'Host Unreachable for ToS',
+                    'Communication Administratively Prohibited',
+                    'Host Precedence Violation',
+                    'Precedence Cutoff in Effect'
+                ]
+                try:
+                    return unreachable_messages[self.message.packet.message_code]
+                except IndexError:
+                    # Should never generate IndexError, this serves as additional protection
+                    return 'Unreachable'
+        # Error was not identified
+        return 'Network Error'
 
     @property
     def time_elapsed_ms(self):
@@ -67,8 +103,7 @@ class Response:
                                                                self.time_elapsed_ms)
         else:
             # Not successful, but with some code (e.g. destination unreachable)
-            # TODO implement better error handling
-            return 'Generic error in {0}ms'.format(self.time_elapsed_ms)
+            return '{0} from {1} in {2}ms'.format(self.error_message, self.message.source, self.time_elapsed_ms)
 
 
 class ResponseList:
