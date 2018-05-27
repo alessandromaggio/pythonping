@@ -66,6 +66,10 @@ class Sweep(PayloadProvider):
         :type start_size: int
         :param end_size: The payload size to end with, included
         :type end_size: int"""
+        if start_size > end_size:
+            raise ValueError('end_size must be greater or equal than start_size')
+        if len(pattern) == 0:
+            raise ValueError('pattern cannot be empty')
         self.pattern = pattern
         self.start_size = start_size
         self.end_size = end_size
