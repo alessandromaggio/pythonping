@@ -197,14 +197,19 @@ class Communicator:
         if self.seed_id is None:
             self.seed_id = os.getpid() & 0xFFFF
 
-    def send_ping(self, packet_id, payload):
+    def send_ping(self, packet_id, sequence_number, payload):
         """Sends one ICMP Echo Request on the socket
 
         :param packet_id: The ID to use for the packet
         :type packet_id: int
+        :param sequence_number: The seuqnce number to use for the packet
+        :type sequence_number: int
         :param payload: The payload of the ICMP message
         :type payload: bytes"""
-        self.socket.send(icmp.ICMP(icmp.Types.EchoRequest, payload=payload, identifier=packet_id).packet)
+        self.socket.send(icmp.ICMP(
+            icmp.Types.EchoRequest,
+            payload=payload,
+            identifier=packet_id, sequence_number=sequence_number).packet)
 
     def listen_for(self, packet_id, timeout):
         """Listens for a packet of a given id for a given timeout
@@ -228,25 +233,24 @@ class Communicator:
         return Response(None, timeout)
 
     @staticmethod
-    def increase_id(identifier, restore):
-        """Increases an ICMP identifier leaving some noise on the first nibble
+    def increase_seq(sequence_number):
+        """Increases an ICMP sequence number and reset if it gets bigger than 2 bytes
 
-        :param identifier: The identifier to increase
-        :type identifier: int
-        :param restore: The value to restore the identifier to in case it fills the three rightmost nibbles
-        :type restore: int
-        :return: The increased or restored id
+        :param sequence_number: The sequence number to increase
+        :type sequence_number: int
+        :return: The increased sequence number of 1, in case an increase was not possible
         :rtype: int"""
-        identifier += 1
-        if (identifier & 0x0FFF) >= 0xFFF:
-            identifier = restore
-        return identifier
+        sequence_number += 1
+        if sequence_number > 0xFFFF:
+            sequence_number = 1
+        return sequence_number
 
     def run(self):
         """Performs all the pings and stores the responses"""
         self.responses.clear()
         identifier = self.seed_id
+        seq = 1
         for payload in self.provider:
-            self.send_ping(identifier, payload)
+            self.send_ping(identifier, seq, payload)
             self.responses.append(self.listen_for(identifier, self.timeout))
-            # identifier = self.increase_id(identifier, self.seed_id)
+            seq = self.increase_seq(seq)
