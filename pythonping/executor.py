@@ -56,7 +56,7 @@ class Response:
 
     @property
     def error_message(self):
-        if self.message is not None:
+        if self.message is None:
             return 'No response'
         else:
             if self.message.packet.message_type == 0 and self.message.packet.message_code == 0:
@@ -123,8 +123,8 @@ class ResponseList:
         self.rtt_avg = 0
         self.rtt_min = 0
         self.rtt_max = 0
-        if initial_set is not None:
-            self._responses = initial_set
+        for response in initial_set:
+            self.append(response)
 
     @property
     def rtt_min_ms(self):
