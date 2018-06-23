@@ -108,7 +108,7 @@ class Response:
 
 class ResponseList:
     """Represents a series of ICMP responses"""
-    def __init__(self, initial_set=None, verbose=False, output=sys.stdout):
+    def __init__(self, initial_set=[], verbose=False, output=sys.stdout):
         """Creates a ResponseList with initial data if available
 
         :param initial_set: Already existing responses
@@ -117,6 +117,7 @@ class ResponseList:
         :type verbose: bool
         :param output: File where to write verbose output, defaults to stdout
         :type output: file"""
+        self._responses = []
         self.clear()
         self.verbose = verbose
         self.output = output
