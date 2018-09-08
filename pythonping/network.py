@@ -5,7 +5,7 @@ import time
 
 class Socket:
     BUFFER_SIZE = 1024
-    DONT_FRAGMENT = 2           # Option value for raw socket
+    DONT_FRAGMENT = (socket.SOL_IP, 10, 1)           # Option value for raw socket
 
     def __init__(self, destination, protocol, source=None, options=()):
         """Creates a network socket to exchange messages
@@ -24,7 +24,7 @@ class Socket:
             raise NotImplementedError('PythonPing currently does not support specification of source IP')
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_RAW, self.protocol)
         if options:
-            self.socket.setsockopt(options)
+            self.socket.setsockopt(*options)
 
     def send(self, packet):
         """Sends a raw packet on the stream

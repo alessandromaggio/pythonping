@@ -48,7 +48,7 @@ def ping(target,
         provider = payload_provider.Sweep(payload, sweep_start, sweep_end)
     options = ()
     if df:
-        options = (network.Socket.DONT_FRAGMENT,)
+        options = network.Socket.DONT_FRAGMENT
     comm = executor.Communicator(target, provider, timeout, socket_options=options, verbose=verbose, output=out)
     comm.run()
     return comm.responses
