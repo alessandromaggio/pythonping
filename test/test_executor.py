@@ -142,6 +142,13 @@ class ResponseListTestCase(unittest.TestCase):
             'Unable identify the length of 23'
         )
 
+    def test_iterable(self):
+        """Verifies it is iterable"""
+        self.assertTrue(
+            isinstance(self.responses_from_times([0, 1, 2, 3]), collections.abc.Iterable),
+            'Unable to ierate over ResponseList object'
+        )
+
 
 class CommunicatorTestCase(unittest.TestCase):
     """Tests for Communicator"""
