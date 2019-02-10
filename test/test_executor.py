@@ -1,3 +1,4 @@
+import collections
 import unittest
 from pythonping import executor
 from pythonping import icmp
