@@ -51,3 +51,7 @@ class Socket:
                 return b'', '', time_left
             packet, source = self.socket.recvfrom(self.BUFFER_SIZE)
             return packet, source, time_left
+
+    def __del__(self):
+        if self.socket:
+            self.socket.close()

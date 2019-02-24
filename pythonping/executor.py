@@ -198,6 +198,10 @@ class Communicator:
         if self.seed_id is None:
             self.seed_id = os.getpid() & 0xFFFF
 
+    def __del__(self):
+        if self.socket:
+            del self.socket
+
     def send_ping(self, packet_id, sequence_number, payload):
         """Sends one ICMP Echo Request on the socket
 
