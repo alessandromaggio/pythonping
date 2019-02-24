@@ -42,9 +42,9 @@ class Socket:
         :rtype: (bytes, tuple, float)"""
         time_left = timeout
         while time_left > 0:
-            start_select = time.clock()
+            start_select = time.perf_counter()
             data_ready = select.select([self.socket], [], [], time_left)
-            elapsed_in_select = time.clock() - start_select
+            elapsed_in_select = time.perf_counter() - start_select
             time_left -= elapsed_in_select
             if not data_ready[0]:
                 # Timeout
