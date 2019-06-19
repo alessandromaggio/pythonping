@@ -233,7 +233,8 @@ class Communicator:
             # If we actually received something
             if raw_packet != b'':
                 response.unpack(raw_packet)
-                if response.id == packet_id:
+                # Ensure we have not unpacked the packet we sent (RHEL will also listen to outgoing packets)
+                if response.id == packet_id and response.message_type != icmp.Types.EchoRequest.type_id:
                     return Response(Message('', response, source_socket[0]), timeout-time_left)
         return Response(None, timeout)
 
