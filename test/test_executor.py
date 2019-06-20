@@ -1,3 +1,4 @@
+import collections
 import unittest
 from pythonping import executor
 from pythonping import icmp
@@ -139,6 +140,13 @@ class ResponseListTestCase(unittest.TestCase):
             len(self.responses_from_times(list(range(23)))),
             23,
             'Unable identify the length of 23'
+        )
+
+    def test_iterable(self):
+        """Verifies it is iterable"""
+        self.assertTrue(
+            isinstance(self.responses_from_times([0, 1, 2, 3]), collections.abc.Iterable),
+            'Unable to ierate over ResponseList object'
         )
 
 
