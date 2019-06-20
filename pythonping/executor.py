@@ -169,6 +169,10 @@ class ResponseList:
         ret += 'Round Trip Times min/avg/max is {0}/{1}/{2} ms'.format(self.rtt_min_ms, self.rtt_avg_ms, self.rtt_max_ms)
         return ret
 
+    def __iter__(self):
+        for response in self._responses:
+            yield response
+
 
 class Communicator:
     """Instance actually communicating over the network, sending messages and handling responses"""
