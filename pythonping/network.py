@@ -53,5 +53,8 @@ class Socket:
             return packet, source, time_left
 
     def __del__(self):
-        if self.socket:
-            self.socket.close()
+        try:
+            if self.socket:
+                self.socket.close()
+        except AttributeError:
+            raise AttributeError("Attribute error because of failed socket init. Make sure you have the root privilege.")
