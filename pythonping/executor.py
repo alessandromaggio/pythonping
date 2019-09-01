@@ -1,6 +1,7 @@
 """Module that actually performs the ping, sending and receiving packets"""
 
-import os, sys
+import os
+import sys
 from enum import IntEnum, auto
 
 from . import icmp
@@ -8,9 +9,10 @@ from . import network
 
 
 class SuccessOn(IntEnum):
-    One  = auto()
+    One = auto()
     Most = auto()
-    All  = auto()
+    All = auto()
+
 
 class Message:
     """Represents an ICMP message with destination socket"""
@@ -134,21 +136,22 @@ class ResponseList:
         for response in initial_set:
             self.append(response)
 
-    def success( self, option = SuccessOn.One ):
-        """Cheking success state of the request.
-        :option: Sets a threshold for success sign. ( 1 - SuccessOn.One, 2 - SuccessOn.Most, 3 - SuccessOn.All )
+    def success(self, option=SuccessOn.One):
+        """Check success state of the request.
+
+        :param option: Sets a threshold for success sign. ( 1 - SuccessOn.One, 2 - SuccessOn.Most, 3 - SuccessOn.All )
+        :type option: int
+        :return: Whether this set of responses is successful
+        :rtype: bool
         """
-
         result = False
-        success_list = [ resp.success for resp in self._responses ]
-
+        success_list = [resp.success for resp in self._responses]
         if option == SuccessOn.One:
             result = True in success_list
         elif option == SuccessOn.Most:
-            result = success_list.count( True ) / len( success_list ) > 0.5
+            result = success_list.count(True) / len(success_list) > 0.5
         elif option == SuccessOn.All:
             result = False not in success_list
-
         return result
 
     @property

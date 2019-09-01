@@ -4,6 +4,20 @@ from pythonping import executor
 from pythonping import icmp
 
 
+class SuccessfulResponseMock(executor.Response):
+    """Mock a successful response to a ping"""
+    @property
+    def success(self):
+        return True
+
+
+class FailingResponseMock(executor.Response):
+    """Mock a failed response to a ping"""
+    @property
+    def success(self):
+        return False
+
+
 class ExecutorUtilsTestCase(unittest.TestCase):
     """Tests for standalone functions in pythonping.executor"""
 
@@ -147,6 +161,90 @@ class ResponseListTestCase(unittest.TestCase):
         self.assertTrue(
             isinstance(self.responses_from_times([0, 1, 2, 3]), collections.abc.Iterable),
             'Unable to iterate over ResponseList object'
+        )
+
+    def test_success_all_success(self):
+        """Verify success is calculated correctly if all responses are successful"""
+        rs = executor.ResponseList([
+            SuccessfulResponseMock(None, 1),
+            SuccessfulResponseMock(None, 1),
+            SuccessfulResponseMock(None, 1),
+            SuccessfulResponseMock(None, 1)
+        ])
+        self.assertTrue(
+            rs.success(executor.SuccessOn.One),
+            'Unable to calculate success on one correctly with all responses successful'
+        )
+        self.assertTrue(
+            rs.success(executor.SuccessOn.Most),
+            'Unable to calculate success on most with all responses successful'
+        )
+        self.assertTrue(
+            rs.success(executor.SuccessOn.All),
+            'Unable to calculate success on all with all responses successful'
+        )
+
+    def test_success_one_success(self):
+        """Verify success is calculated correctly if one response is successful"""
+        rs = executor.ResponseList([
+            SuccessfulResponseMock(None, 1),
+            FailingResponseMock(None, 1),
+            FailingResponseMock(None, 1),
+            FailingResponseMock(None, 1)
+        ])
+        self.assertTrue(
+            rs.success(executor.SuccessOn.One),
+            'Unable to calculate success on one correctly with one response successful'
+        )
+        self.assertFalse(
+            rs.success(executor.SuccessOn.Most),
+            'Unable to calculate success on most with one response successful'
+        )
+        self.assertFalse(
+            rs.success(executor.SuccessOn.All),
+            'Unable to calculate success on all with one response successful'
+        )
+
+    def test_success_most_success(self):
+        """Verify success is calculated correctly if most responses are successful"""
+        rs = executor.ResponseList([
+            SuccessfulResponseMock(None, 1),
+            SuccessfulResponseMock(None, 1),
+            SuccessfulResponseMock(None, 1),
+            FailingResponseMock(None, 1)
+        ])
+        self.assertTrue(
+            rs.success(executor.SuccessOn.One),
+            'Unable to calculate success on one correctly with most responses successful'
+        )
+        self.assertTrue(
+            rs.success(executor.SuccessOn.Most),
+            'Unable to calculate success on most with most responses successful'
+        )
+        self.assertFalse(
+            rs.success(executor.SuccessOn.All),
+            'Unable to calculate success on all with most responses successful'
+        )
+
+    def test_success_half_success(self):
+        """Verify success is calculated correctly if half responses are successful"""
+        rs = executor.ResponseList([
+            SuccessfulResponseMock(None, 1),
+            SuccessfulResponseMock(None, 1),
+            FailingResponseMock(None, 1),
+            FailingResponseMock(None, 1)
+        ])
+        self.assertTrue(
+            rs.success(executor.SuccessOn.One),
+            'Unable to calculate success on one correctly with half responses successful'
+        )
+        self.assertFalse(
+            rs.success(executor.SuccessOn.Most),
+            'Unable to calculate success on most with half responses successful'
+        )
+        self.assertFalse(
+            rs.success(executor.SuccessOn.All),
+            'Unable to calculate success on all with half responses successful'
         )
 
 
