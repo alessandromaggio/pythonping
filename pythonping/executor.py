@@ -230,8 +230,11 @@ class Communicator:
             self.seed_id = os.getpid() & 0xFFFF
 
     def __del__(self):
-        if self.socket:
-            del self.socket
+        try:
+            if self.socket:
+                self.socket.close()
+        except AttributeError:
+            raise AttributeError("Attribute error because of failed socket init. Make sure you have the root privilege.")
 
     def send_ping(self, packet_id, sequence_number, payload):
         """Sends one ICMP Echo Request on the socket
