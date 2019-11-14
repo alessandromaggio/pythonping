@@ -3,7 +3,7 @@
 import os
 import sys
 
-if sys.version_info[1] < 8:
+if sys.version_info[1] == 5:
     from enum import IntEnum, Enum
 
     class AutoNumber(Enum):
