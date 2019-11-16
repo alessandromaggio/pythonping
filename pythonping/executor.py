@@ -2,7 +2,30 @@
 
 import os
 import sys
-from enum import IntEnum, auto
+
+# Python 3.5 compatibility
+if sys.version_info[1] == 5:
+    from enum import IntEnum, Enum
+
+    class AutoNumber(Enum):
+        def __new__(cls):
+            value = len(cls.__members__) + 1
+            obj = object.__new__(cls)
+            obj._value = value
+            return obj
+
+    class SuccessOn(AutoNumber):
+        One = ()
+        Most = ()
+        All = ()
+else:
+    from enum import IntEnum, auto
+
+    class SuccessOn(IntEnum):
+        One = auto()
+        Most = auto()
+        All = auto()
+
 
 from . import icmp
 from . import network
