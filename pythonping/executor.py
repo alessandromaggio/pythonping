@@ -257,7 +257,8 @@ class Communicator:
             if self.socket:
                 self.socket.close()
         except AttributeError:
-            raise AttributeError("Attribute error because of failed socket init. Make sure you have the root privilege.")
+            raise AttributeError("Attribute error because of failed socket init. Make sure you have the root privilege."
+                                 " This error may also be caused from DNS resolution problems.")
 
     def send_ping(self, packet_id, sequence_number, payload):
         """Sends one ICMP Echo Request on the socket
