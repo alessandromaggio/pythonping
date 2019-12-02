@@ -2,6 +2,8 @@
 
 import os
 import sys
+from . import icmp
+from . import network
 
 # Python 3.5 compatibility
 if sys.version_info[1] == 5:
@@ -25,16 +27,6 @@ else:
         One = auto()
         Most = auto()
         All = auto()
-
-
-from . import icmp
-from . import network
-
-
-class SuccessOn(IntEnum):
-    One = auto()
-    Most = auto()
-    All = auto()
 
 
 class Message:
