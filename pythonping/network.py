@@ -4,10 +4,9 @@ import time
 
 
 class Socket:
-    BUFFER_SIZE = 1024
     DONT_FRAGMENT = (socket.SOL_IP, 10, 1)           # Option value for raw socket
 
-    def __init__(self, destination, protocol, source=None, options=()):
+    def __init__(self, destination, protocol, source=None, options=(), buffer_size=2048):
         """Creates a network socket to exchange messages
 
         :param destination: Destination IP address
@@ -17,9 +16,12 @@ class Socket:
         :param options: Options to set on the socket
         :type options: tuple
         :param source: Source IP to use - implemented in future releases
-        :type source: Union[None, str]"""
+        :type source: Union[None, str]
+        :param buffer_size: Size in bytes of the listening buffer for incoming packets (replies)
+        :type buffer_size: int"""
         self.destination = socket.gethostbyname(destination)
         self.protocol = socket.getprotobyname(protocol)
+        self.buffer_size = buffer_size
         if source is not None:
             raise NotImplementedError('PythonPing currently does not support specification of source IP')
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_RAW, self.protocol)
@@ -49,7 +51,7 @@ class Socket:
             if not data_ready[0]:
                 # Timeout
                 return b'', '', time_left
-            packet, source = self.socket.recvfrom(self.BUFFER_SIZE)
+            packet, source = self.socket.recvfrom(self.buffer_size)
             return packet, source, time_left
 
     def __del__(self):
