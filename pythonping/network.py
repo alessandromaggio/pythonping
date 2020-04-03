@@ -19,7 +19,10 @@ class Socket:
         :type source: Union[None, str]
         :param buffer_size: Size in bytes of the listening buffer for incoming packets (replies)
         :type buffer_size: int"""
-        self.destination = socket.gethostbyname(destination)
+        try:
+            self.destination = socket.gethostbyname(destination)
+        except socket.gaierror as e:
+            raise RuntimeError('Cannot resolve address "' + destination + '", try verify your DNS or host file')
         self.protocol = socket.getprotobyname(protocol)
         self.buffer_size = buffer_size
         if source is not None:
