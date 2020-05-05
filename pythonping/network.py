@@ -59,7 +59,7 @@ class Socket:
 
     def __del__(self):
         try:
-            if self.socket:
+            if hasattr(self, "socket") and self.socket:
                 self.socket.close()
         except AttributeError:
             raise AttributeError("Attribute error because of failed socket init. Make sure you have the root privilege."
