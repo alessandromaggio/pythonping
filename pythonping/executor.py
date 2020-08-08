@@ -263,8 +263,6 @@ class Communicator:
 
     def listen_for(self, packet_id, timeout, payload_pattern=None):
         """Listens for a packet of a given id for a given timeout
-        (maintain pythonping legacy implementation (windows like) that didn't match payloads,
-        but allow for it to be set to be linux-like)
 
         :param packet_id: The ID of the packet to listen for, the same for request and response
         :type packet_id: int
@@ -282,7 +280,7 @@ class Communicator:
             # If we actually received something
             if raw_packet != b'':
                 response.unpack(raw_packet)
-                # to ensure legacy path (which was to not do payload inspection but only match packet identifiers),
+                # To allow Windows-like behaviour (no payload inspection, but only match packet identifiers),
                 # simply allow for it to be an always true in the legacy usage case
                 if payload_pattern is None:
                     payload_pattern = response.payload
@@ -308,7 +306,6 @@ class Communicator:
 
     def run(self, match_payloads=False):
         """Performs all the pings and stores the responses
-        (maintain legacy usage path of not matching payload but allow for it to be set)
 
         :param match_payloads: optional to set to True to make sure requests and replies have equivalent payloads
         :type match_payloads: bool"""

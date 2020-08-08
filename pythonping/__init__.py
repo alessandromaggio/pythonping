@@ -42,7 +42,7 @@ def ping(target,
     :type verbose: bool
     :param out: Stream to which redirect the verbose output
     :type out: stream
-    :param match: Do payload matching between request and reply (default behaviour follows that of windows which is
+    :param match: Do payload matching between request and reply (default behaviour follows that of Windows which is
     by packet identifier only, Linux behaviour counts a non equivalent payload in reply as fail, such as when pinging
     8.8.8.8 with 1000 bytes and reply is truncated to only the first 74 of request payload with packet identifiers
     the same in request and reply)
