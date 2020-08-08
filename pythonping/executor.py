@@ -261,13 +261,17 @@ class Communicator:
             payload=payload,
             identifier=packet_id, sequence_number=sequence_number).packet)
 
-    def listen_for(self, packet_id, timeout):
+    def listen_for(self, packet_id, timeout, payload_pattern=None):
         """Listens for a packet of a given id for a given timeout
+        (maintain pythonping legacy implementation (windows like) that didn't match payloads,
+        but allow for it to be set to be linux-like)
 
         :param packet_id: The ID of the packet to listen for, the same for request and response
         :type packet_id: int
         :param timeout: How long to listen for the specified packet, in seconds
         :type timeout: float
+        :param payload_pattern: Payload reply pattern to match to request, if set to None, match by ID only
+        :type payload_pattern: Union[None, bytes]
         :return: The response to the request with the specified packet_id
         :rtype: Response"""
         time_left = timeout
@@ -278,9 +282,15 @@ class Communicator:
             # If we actually received something
             if raw_packet != b'':
                 response.unpack(raw_packet)
+                # to ensure legacy path (which was to not do payload inspection but only match packet identifiers),
+                # simply allow for it to be an always true in the legacy usage case
+                if payload_pattern is None:
+                    payload_pattern = response.payload
+
                 # Ensure we have not unpacked the packet we sent (RHEL will also listen to outgoing packets)
-                if response.id == packet_id and response.message_type != icmp.Types.EchoRequest.type_id:
-                    return Response(Message('', response, source_socket[0]), timeout-time_left)
+                if (response.id == packet_id and response.message_type != icmp.Types.EchoRequest.type_id
+                        and response.payload == payload_pattern):
+                    return Response(Message('', response, source_socket[0]), timeout - time_left)
         return Response(None, timeout)
 
     @staticmethod
@@ -296,12 +306,20 @@ class Communicator:
             sequence_number = 1
         return sequence_number
 
-    def run(self):
-        """Performs all the pings and stores the responses"""
+    def run(self, match_payloads=False):
+        """Performs all the pings and stores the responses
+        (maintain legacy usage path of not matching payload but allow for it to be set)
+
+        :param match_payloads: optional to set to True to make sure requests and replies have equivalent payloads
+        :type match_payloads: bool"""
         self.responses.clear()
         identifier = self.seed_id
         seq = 1
         for payload in self.provider:
             self.send_ping(identifier, seq, payload)
-            self.responses.append(self.listen_for(identifier, self.timeout))
+            if not match_payloads:
+                self.responses.append(self.listen_for(identifier, self.timeout))
+            else:
+                self.responses.append(self.listen_for(identifier, self.timeout, payload))
+
             seq = self.increase_seq(seq)

@@ -1,6 +1,12 @@
 import sys
 from . import network, executor, payload_provider
 from .utils import random_text
+from random import randint
+from typing import List
+
+
+# this needs to be available across all thread usages
+SEED_IDs: List[int] = []
 
 
 def ping(target,
@@ -12,7 +18,8 @@ def ping(target,
          sweep_end=None,
          df=False,
          verbose=False,
-         out=sys.stdout):
+         out=sys.stdout,
+         match=False):
     """Pings a remote host and handles the responses
 
     :param target: The remote hostname or IP address to ping
@@ -35,6 +42,11 @@ def ping(target,
     :type verbose: bool
     :param out: Stream to which redirect the verbose output
     :type out: stream
+    :param match: Do payload matching between request and reply (default behaviour follows that of windows which is
+    by packet identifier only, Linux behaviour counts a non equivalent payload in reply as fail, such as when pinging
+    8.8.8.8 with 1000 bytes and reply is truncated to only the first 74 of request payload with packet identifiers
+    the same in request and reply)
+    :type match: bool
     :return: List with the result of each ping
     :rtype: executor.ResponseList"""
     provider = payload_provider.Repeat(b'', 0)
@@ -49,6 +61,20 @@ def ping(target,
     options = ()
     if df:
         options = network.Socket.DONT_FRAGMENT
-    comm = executor.Communicator(target, provider, timeout, socket_options=options, verbose=verbose, output=out)
-    comm.run()
+
+    # Fix to allow for pythonping multithreaded usage;
+    # no need to protect this loop as no one will ever surpass 0xFFFF amount of threads
+    while True:
+        # seed_id needs to be less than or equal to 65535 (as original code was seed_id = getpid() & 0xFFFF)
+        seed_id = randint(0x1, 0xFFFF)
+        if seed_id not in SEED_IDs:
+            SEED_IDs.append(seed_id)
+            break
+
+    comm = executor.Communicator(target, provider, timeout, socket_options=options, verbose=verbose, output=out,
+                                 seed_id=seed_id)
+    comm.run(match_payloads=match)
+
+    SEED_IDs.remove(seed_id)
+
     return comm.responses
