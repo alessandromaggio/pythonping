@@ -11,5 +11,9 @@ class PingCase(unittest.TestCase):
         self.assertEqual(len(ping('10.127.0.1', count=4, size=10)), 4,
                          'Sent 4 pings to localhost, but not received 4 responses')
 
+        self.assertEqual(ping('8.8.8.8', count=4, size=992).success(), True,
+                         'Sent 4 large pings to google DNS A with payload match off, received all replies')
+
         self.assertEqual(ping('8.8.8.8', count=4, size=992, match=True).success(), False,
-                         'Sent 4 large pings to google DNS A, expected all to fail since they truncate large payloads')
+                         'Sent 4 large pings to google DNS A with payload match on,'
+                         + 'expected all to fail since they truncate large payloads')
