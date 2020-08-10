@@ -252,14 +252,17 @@ class Communicator:
 
         :param packet_id: The ID to use for the packet
         :type packet_id: int
-        :param sequence_number: The seuqnce number to use for the packet
+        :param sequence_number: The sequence number to use for the packet
         :type sequence_number: int
         :param payload: The payload of the ICMP message
-        :type payload: bytes"""
-        self.socket.send(icmp.ICMP(
+        :type payload: Union[str, bytes]
+        :rtype: bytes"""
+        i = icmp.ICMP(
             icmp.Types.EchoRequest,
             payload=payload,
-            identifier=packet_id, sequence_number=sequence_number).packet)
+            identifier=packet_id, sequence_number=sequence_number)
+        self.socket.send(i.packet)
+        return i.payload
 
     def listen_for(self, packet_id, timeout, payload_pattern=None):
         """Listens for a packet of a given id for a given timeout
@@ -313,10 +316,10 @@ class Communicator:
         identifier = self.seed_id
         seq = 1
         for payload in self.provider:
-            self.send_ping(identifier, seq, payload)
+            payload_bytes_sent = self.send_ping(identifier, seq, payload)
             if not match_payloads:
                 self.responses.append(self.listen_for(identifier, self.timeout))
             else:
-                self.responses.append(self.listen_for(identifier, self.timeout, payload))
+                self.responses.append(self.listen_for(identifier, self.timeout, payload_bytes_sent))
 
             seq = self.increase_seq(seq)
