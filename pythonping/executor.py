@@ -283,15 +283,18 @@ class Communicator:
             # If we actually received something
             if raw_packet != b'':
                 response.unpack(raw_packet)
-                # To allow Windows-like behaviour (no payload inspection, but only match packet identifiers),
-                # simply allow for it to be an always true in the legacy usage case
-                if payload_pattern is None:
-                    payload_pattern = response.payload
 
                 # Ensure we have not unpacked the packet we sent (RHEL will also listen to outgoing packets)
-                if (response.id == packet_id and response.message_type != icmp.Types.EchoRequest.type_id
-                        and response.payload == payload_pattern):
-                    return Response(Message('', response, source_socket[0]), timeout - time_left)
+                if response.id == packet_id and response.message_type != icmp.Types.EchoRequest.type_id:
+                    if payload_pattern is None:
+                        # To allow Windows-like behaviour (no payload inspection, but only match packet identifiers),
+                        # simply allow for it to be an always true in the legacy usage case
+                        payload_matched = True
+                    else:
+                        payload_matched = (payload_pattern == response.payload)
+
+                    if payload_matched:
+                        return Response(Message('', response, source_socket[0]), timeout - time_left)
         return Response(None, timeout)
 
     @staticmethod
