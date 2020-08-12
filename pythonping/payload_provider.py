@@ -38,7 +38,7 @@ class Repeat(PayloadProvider):
         """Creates a provider of many identical payloads
 
         :param pattern: The existing payload
-        :type pattern: bytes
+        :type pattern: Union[str, bytes]
         :param count: How many payloads to generate
         :type count: int"""
         self.pattern = pattern
@@ -61,7 +61,7 @@ class Sweep(PayloadProvider):
         """Creates a provider of payloads of increasing size
 
         :param pattern: The existing payload, may be cut or replicated to fit the size
-        :type pattern: bytes
+        :type pattern: Union[str, bytes]
         :param start_size: The first payload size to start with, included
         :type start_size: int
         :param end_size: The payload size to end with, included

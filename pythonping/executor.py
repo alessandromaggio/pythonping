@@ -252,14 +252,17 @@ class Communicator:
 
         :param packet_id: The ID to use for the packet
         :type packet_id: int
-        :param sequence_number: The seuqnce number to use for the packet
+        :param sequence_number: The sequence number to use for the packet
         :type sequence_number: int
         :param payload: The payload of the ICMP message
-        :type payload: bytes"""
-        self.socket.send(icmp.ICMP(
+        :type payload: Union[str, bytes]
+        :rtype: bytes"""
+        i = icmp.ICMP(
             icmp.Types.EchoRequest,
             payload=payload,
-            identifier=packet_id, sequence_number=sequence_number).packet)
+            identifier=packet_id, sequence_number=sequence_number)
+        self.socket.send(i.packet)
+        return i.payload
 
     def listen_for(self, packet_id, timeout, payload_pattern=None):
         """Listens for a packet of a given id for a given timeout
@@ -280,15 +283,18 @@ class Communicator:
             # If we actually received something
             if raw_packet != b'':
                 response.unpack(raw_packet)
-                # To allow Windows-like behaviour (no payload inspection, but only match packet identifiers),
-                # simply allow for it to be an always true in the legacy usage case
-                if payload_pattern is None:
-                    payload_pattern = response.payload
 
                 # Ensure we have not unpacked the packet we sent (RHEL will also listen to outgoing packets)
-                if (response.id == packet_id and response.message_type != icmp.Types.EchoRequest.type_id
-                        and response.payload == payload_pattern):
-                    return Response(Message('', response, source_socket[0]), timeout - time_left)
+                if response.id == packet_id and response.message_type != icmp.Types.EchoRequest.type_id:
+                    if payload_pattern is None:
+                        # To allow Windows-like behaviour (no payload inspection, but only match packet identifiers),
+                        # simply allow for it to be an always true in the legacy usage case
+                        payload_matched = True
+                    else:
+                        payload_matched = (payload_pattern == response.payload)
+
+                    if payload_matched:
+                        return Response(Message('', response, source_socket[0]), timeout - time_left)
         return Response(None, timeout)
 
     @staticmethod
@@ -313,10 +319,10 @@ class Communicator:
         identifier = self.seed_id
         seq = 1
         for payload in self.provider:
-            self.send_ping(identifier, seq, payload)
+            payload_bytes_sent = self.send_ping(identifier, seq, payload)
             if not match_payloads:
                 self.responses.append(self.listen_for(identifier, self.timeout))
             else:
-                self.responses.append(self.listen_for(identifier, self.timeout, payload))
+                self.responses.append(self.listen_for(identifier, self.timeout, payload_bytes_sent))
 
             seq = self.increase_seq(seq)
