@@ -41,6 +41,11 @@ Note that if you defined `size`, these two fields will be ignored
 * `verbose` enables the verbose mode, printing output to a stream (see `out`)
 * `out` is the target stream of verbose mode. If you enable the verbose mode and do not provide
 `out`, verbose output will be send to the `sys.stdout` stream. You may want to use a file here.
+* `match` is a flag that, if set to True, will enable payload matching between a ping request
+and reply (default behaviour follows that of Windows which counts a successful reply by a
+matched packet identifier only; Linux behaviour counts a non equivalent payload with a matched
+packet identifier in reply as fail, such as when pinging 8.8.8.8 with 1000 bytes and the reply
+is truncated to only the first 74 of request payload with a matching packet identifier)
 
 ## FAQ
 ### Do I need privileged mode or root?
@@ -59,8 +64,10 @@ to create custom IP packets. Unfortunately, there is simply no other way to crea
 If you wish to extend PythonPing, or integrate it in your application, we recommend to use the
 classes that are part of Python Ping instead of the `ping` function. `executor.Communicator` 
 handles the communication with the target device, it takes care of sending ICMP requests and 
-processing responses. It ultimately produces the `executor.ResponseList` object. The `Communicator`
-needs to know a target and which payloads to send to the remote device. For that, we have several
-classes in the `payload_provider` module. You may want to create your own provider by extending
+processing responses (note that for it to be thread safe you must then handle making a unique
+seed ID for each thread instance, see ping.__init\__ for an example of this). It ultimately
+produces the `executor.ResponseList` object. The `Communicator` needs to know a target and
+which payloads to send to the remote device. For that, we have several classes in the
+`payload_provider` module. You may want to create your own provider by extending
 `payload_provider.PayloadProvider`. If you are interested in that, you should check the
 documentation of both `executor` and `payload_provider` module.

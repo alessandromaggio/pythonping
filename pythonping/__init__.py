@@ -2,11 +2,10 @@ import sys
 from . import network, executor, payload_provider
 from .utils import random_text
 from random import randint
-from typing import List
 
 
-# this needs to be available across all thread usages
-SEED_IDs: List[int] = []
+# this needs to be available across all thread usages and will hold ints
+SEED_IDs = []
 
 
 def ping(target,
