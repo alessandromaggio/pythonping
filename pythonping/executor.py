@@ -227,7 +227,7 @@ class Communicator:
         :param payload_provider: An iterable list of payloads to send
         :type payload_provider: PayloadProvider
         :param timeout: Timeout that will apply to all ping messages, in seconds
-        :type timeout: int
+        :type timeout: Union[int, float]
         :param socket_options: Options to specify for the network.Socket
         :type socket_options: tuple
         :param seed_id: The first ICMP packet ID to use

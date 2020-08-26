@@ -24,7 +24,7 @@ def ping(target,
     :param target: The remote hostname or IP address to ping
     :type target: str
     :param timeout: Time in seconds before considering each non-arrived reply permanently lost.
-    :type timeout: int, float
+    :type timeout: Union[int, float]
     :param count: How many times to attempt the ping
     :type count: int
     :param size: Size of the entire packet to send
