@@ -5,6 +5,8 @@ import time
 
 class Socket:
     DONT_FRAGMENT = (socket.SOL_IP, 10, 1)           # Option value for raw socket
+    PROTO_LOOKUP = {"icmp": socket.IPPROTO_ICMP, "tcp": socket.IPPROTO_TCP, "udp": socket.IPPROTO_UDP,
+                    "ip": socket.IPPROTO_IP, "raw": socket.IPPROTO_RAW}
 
     def __init__(self, destination, protocol, source=None, options=(), buffer_size=2048):
         """Creates a network socket to exchange messages
@@ -24,12 +26,6 @@ class Socket:
         except socket.gaierror as e:
             raise RuntimeError('Cannot resolve address "' + destination + '", try verify your DNS or host file')
 
-        # Implementing a version of socket.getprotobyname for this library since built-in is not thread safe
-        # for python 3.5, 3.6, and 3.7:
-        # https://bugs.python.org/issue30482
-        # This bug was causing failures as it would occasionally return a 0 (incorrect) instead of a 1 (correct)
-        # for the 'icmp' string, causing a OSError for "Protocol not supported" in multi-threaded usage:
-        # https://github.com/alessandromaggio/pythonping/issues/40
         self.protocol = Socket.getprotobyname(protocol)
         self.buffer_size = buffer_size
         if source is not None:
@@ -38,11 +34,19 @@ class Socket:
         if options:
             self.socket.setsockopt(*options)
 
+    # Implementing a version of socket.getprotobyname for this library since built-in is not thread safe
+    # for python 3.5, 3.6, and 3.7:
+    # https://bugs.python.org/issue30482
+    # This bug was causing failures as it would occasionally return a 0 (incorrect) instead of a 1 (correct)
+    # for the 'icmp' string, causing a OSError for "Protocol not supported" in multi-threaded usage:
+    # https://github.com/alessandromaggio/pythonping/issues/40
     @staticmethod
     def getprotobyname(name):
-        lookup = {"icmp": socket.IPPROTO_ICMP, "tcp": socket.IPPROTO_TCP, "udp": socket.IPPROTO_UDP,
-                  "ip": socket.IPPROTO_IP, "raw": socket.IPPROTO_RAW}
-        return lookup[name.lower()]
+        try:
+            return Socket.PROTO_LOOKUP[name.lower()]
+        except KeyError:
+            raise KeyError("'" + str(name) + "' is not in the list of supported proto types: "
+                           + str(list(Socket.PROTO_LOOKUP.keys())))
 
     def send(self, packet):
         """Sends a raw packet on the stream
