@@ -241,6 +241,7 @@ class Communicator:
         self.timeout = timeout
         self.responses = ResponseList(verbose=verbose, output=output)
         self.seed_id = seed_id
+        # note that to make Communicator instances thread safe, the seed ID must be unique per thread
         if self.seed_id is None:
             self.seed_id = os.getpid() & 0xFFFF
 
