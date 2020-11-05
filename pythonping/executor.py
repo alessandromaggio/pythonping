@@ -169,6 +169,10 @@ class ResponseList:
             result = False not in success_list
         return result
 
+    def packet_loss(self):
+        success_list = [resp.success for resp in self._responses]
+        return (success_list.count(False) / len(success_list)) * 100
+
     @property
     def rtt_min_ms(self):
         return represent_seconds_in_ms(self.rtt_min)
