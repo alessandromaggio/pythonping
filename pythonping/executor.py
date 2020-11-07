@@ -148,6 +148,7 @@ class ResponseList:
         self.rtt_avg = 0
         self.rtt_min = 0
         self.rtt_max = 0
+        self.packets_lost = 0
         for response in initial_set:
             self.append(response)
 
@@ -169,9 +170,9 @@ class ResponseList:
             result = False not in success_list
         return result
 
+    @property
     def packet_loss(self):
-        success_list = [resp.success for resp in self._responses]
-        return (success_list.count(False) / len(success_list)) * 100
+        return self.packets_lost
 
     @property
     def rtt_min_ms(self):
@@ -201,6 +202,9 @@ class ResponseList:
                 self.rtt_max = value.time_elapsed
             if value.time_elapsed < self.rtt_min:
                 self.rtt_min = value.time_elapsed
+
+        self.packets_lost = self.packets_lost + (0 if value.success else 1 - self.packets_lost) / len(self)
+
         if self.verbose:
             print(value, file=self.output)
 
