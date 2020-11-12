@@ -148,6 +148,7 @@ class ResponseList:
         self.rtt_avg = 0
         self.rtt_min = 0
         self.rtt_max = 0
+        self.packets_lost = 0
         for response in initial_set:
             self.append(response)
 
@@ -168,6 +169,10 @@ class ResponseList:
         elif option == SuccessOn.All:
             result = False not in success_list
         return result
+
+    @property
+    def packet_loss(self):
+        return self.packets_lost
 
     @property
     def rtt_min_ms(self):
@@ -197,6 +202,9 @@ class ResponseList:
                 self.rtt_max = value.time_elapsed
             if value.time_elapsed < self.rtt_min:
                 self.rtt_min = value.time_elapsed
+
+        self.packets_lost = self.packets_lost + (0 if value.success else 1 - self.packets_lost) / len(self)
+
         if self.verbose:
             print(value, file=self.output)
 
@@ -241,6 +249,7 @@ class Communicator:
         self.timeout = timeout
         self.responses = ResponseList(verbose=verbose, output=output)
         self.seed_id = seed_id
+        # note that to make Communicator instances thread safe, the seed ID must be unique per thread
         if self.seed_id is None:
             self.seed_id = os.getpid() & 0xFFFF
 
