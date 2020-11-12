@@ -247,6 +247,48 @@ class ResponseListTestCase(unittest.TestCase):
             'Unable to calculate success on all with half responses successful'
         )
 
+    def test_no_packets_lost(self):
+        rs = executor.ResponseList([
+            SuccessfulResponseMock(None, 1),
+            SuccessfulResponseMock(None, 1),
+            SuccessfulResponseMock(None, 1),
+            SuccessfulResponseMock(None, 1)
+        ])
+
+        self.assertEqual(
+            rs.packet_loss, 
+            0.0, 
+            "Unable to calculate packet loss correctly when all responses successful"
+        )
+
+    def test_all_packets_lost(self):
+        rs = executor.ResponseList([
+            FailingResponseMock(None, 1),
+            FailingResponseMock(None, 1),
+            FailingResponseMock(None, 1),
+            FailingResponseMock(None, 1)
+        ])
+
+        self.assertEqual(
+            rs.packet_loss, 
+            1.0, 
+            "Unable to calculate packet loss correctly when all responses failed"
+        )
+
+    def test_some_packets_lost(self):
+        rs = executor.ResponseList([
+            SuccessfulResponseMock(None, 1),
+            SuccessfulResponseMock(None, 1),
+            FailingResponseMock(None, 1),
+            FailingResponseMock(None, 1)
+        ])
+
+        self.assertEqual(
+            rs.packet_loss, 
+            0.5, 
+            "Unable to calculate packet loss correctly when some of the responses failed"
+        )
+
 
 class CommunicatorTestCase(unittest.TestCase):
     """Tests for Communicator"""
