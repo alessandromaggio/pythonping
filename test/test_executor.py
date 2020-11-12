@@ -258,7 +258,7 @@ class ResponseListTestCase(unittest.TestCase):
         self.assertEqual(
             rs.packet_loss, 
             0.0, 
-            "Unable to calculate packet loss correctly when all resposes successful"
+            "Unable to calculate packet loss correctly when all responses successful"
         )
 
     def test_all_packets_lost(self):
@@ -272,7 +272,7 @@ class ResponseListTestCase(unittest.TestCase):
         self.assertEqual(
             rs.packet_loss, 
             1.0, 
-            "Unable to calculate packet loss correctly when all resposes failed"
+            "Unable to calculate packet loss correctly when all responses failed"
         )
 
     def test_some_packets_lost(self):
@@ -288,6 +288,7 @@ class ResponseListTestCase(unittest.TestCase):
             0.5, 
             "Unable to calculate packet loss correctly when some of the responses failed"
         )
+
 
 class CommunicatorTestCase(unittest.TestCase):
     """Tests for Communicator"""
