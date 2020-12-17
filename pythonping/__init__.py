@@ -72,9 +72,6 @@ def ping(target,
             SEED_IDs.append(seed_id)
             break
 
-    print("__init source: ")
-    print(source)
-    print(type(source))
     comm = executor.Communicator(target, provider, timeout, socket_options=options, verbose=verbose, output=out,
                                  seed_id=seed_id, source=source)
     comm.run(match_payloads=match)

@@ -10,9 +10,6 @@ class Socket:
 
     def __init__(self, destination, protocol, options=(), buffer_size=2048, source=None):
         self.source = source
-        print("network-Socket-source: ")
-        print(self.source) 
-        print(type(self.source))
         """Creates a network socket to exchange messages
 
         :param destination: Destination IP address
@@ -57,8 +54,6 @@ class Socket:
 
         :param packet: The raw packet to send
         :type packet: bytes"""
-        print(self.source)
-        print(type(self.source))
         if self.source:
             self.socket.bind((self.source, 0))
         self.socket.sendto(packet, (self.destination, 0))

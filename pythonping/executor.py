@@ -244,9 +244,6 @@ class Communicator:
         :type verbose: bool
         :param output: File where to write verbose output, defaults to stdout
         :type output: file"""
-        print('exec-Comm-source: ')
-        print(source)
-        print(type(source))
         self.socket = network.Socket(target, 'icmp', options=socket_options, source=source)
         self.provider = payload_provider
         self.timeout = timeout
