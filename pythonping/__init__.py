@@ -18,7 +18,9 @@ def ping(target,
          df=False,
          verbose=False,
          out=sys.stdout,
-         match=False):
+         match=False,
+         source=None):
+
     """Pings a remote host and handles the responses
 
     :param target: The remote hostname or IP address to ping
@@ -70,8 +72,11 @@ def ping(target,
             SEED_IDs.append(seed_id)
             break
 
+    print("__init source: ")
+    print(source)
+    print(type(source))
     comm = executor.Communicator(target, provider, timeout, socket_options=options, verbose=verbose, output=out,
-                                 seed_id=seed_id)
+                                 seed_id=seed_id, source=source)
     comm.run(match_payloads=match)
 
     SEED_IDs.remove(seed_id)
