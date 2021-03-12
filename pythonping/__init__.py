@@ -49,14 +49,14 @@ def ping(target,
     :return: List with the result of each ping
     :rtype: executor.ResponseList"""
     provider = payload_provider.Repeat(b'', 0)
-    if size and size > 0:
-        if not payload:
-            payload = random_text(size)
-        provider = payload_provider.Repeat(payload, count)
-    elif sweep_start and sweep_end and sweep_end >= sweep_start:
+    if sweep_start and sweep_end and sweep_end >= sweep_start:
         if not payload:
             payload = random_text(sweep_start)
         provider = payload_provider.Sweep(payload, sweep_start, sweep_end)
+    elif size and size > 0:
+        if not payload:
+            payload = random_text(size)
+        provider = payload_provider.Repeat(payload, count)
     options = ()
     if df:
         options = network.Socket.DONT_FRAGMENT
