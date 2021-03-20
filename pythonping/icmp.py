@@ -22,7 +22,7 @@ def checksum(data):
     while subtotal >> 16:                                       # Add carry on the right until fits in 16 bits
         subtotal = (subtotal & 0xFFFF) + (subtotal >> 16)
     check = ~subtotal                                           # Performs the one complement
-    return ((check << 8) & 0xFF00) | ((check >> 8) & 0x00FF)    # Swap bytes
+    return check & 0xFFFF
 
 
 class ICMPType:
@@ -168,7 +168,7 @@ class ICMP:
         :return: The packed header
         :rtype: bytes"""
         # TODO implement sequence number
-        return struct.pack("bbHHh",
+        return struct.pack("!bbHHH",
                            self.message_type,
                            self.message_code,
                            check,
@@ -213,5 +213,5 @@ class ICMP:
             self.message_code, \
             self.received_checksum, \
             self.id, \
-            sequence = struct.unpack("bbHHh", raw[20:28])
+            sequence = struct.unpack("!bbHHH", raw[20:28])
         self.payload = raw[28:]
