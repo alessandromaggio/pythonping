@@ -203,7 +203,7 @@ class ResponseList:
             if value.time_elapsed < self.rtt_min:
                 self.rtt_min = value.time_elapsed
 
-        self.packets_lost = self.packets_lost + (0 if value.success else 1 - self.packets_lost) / len(self)
+        self.packets_lost = self.packets_lost + ((0 if value.success else 1) - self.packets_lost) / len(self)
 
         if self.verbose:
             print(value, file=self.output)
