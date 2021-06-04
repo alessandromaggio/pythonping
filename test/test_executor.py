@@ -289,6 +289,20 @@ class ResponseListTestCase(unittest.TestCase):
             "Unable to calculate packet loss correctly when some of the responses failed"
         )
 
+    def test_some_packets_lost_mixed(self):
+        rs = executor.ResponseList([
+            FailingResponseMock(None, 1),
+            SuccessfulResponseMock(None, 1),
+            FailingResponseMock(None, 1),
+            SuccessfulResponseMock(None, 1),
+        ])
+
+        self.assertEqual(
+            rs.packet_loss,
+            0.5,
+            "Unable to calculate packet loss correctly when failing responses are mixed with successful responses"
+        )
+
 
 class CommunicatorTestCase(unittest.TestCase):
     """Tests for Communicator"""
