@@ -11,7 +11,6 @@ If you want to see the output immediately, emulating what happens on the termina
 ```python
 from pythonping import ping
 
-
 ping('127.0.0.1', verbose=True)
 ```
 This will yeld the following result.
@@ -33,6 +32,7 @@ You can also tune your ping by using some of its additional parameters:
 is unreachable
 * `payload` allows you to use a specific payload (bytes)
 * `count` specify allows you to define how many ICMP packets to send
+* `interval` the time to wait between pings, in seconds
 * `sweep_start` and `sweep_end` allows you to perform a ping sweep, starting from payload size
 defined in `sweep_start` and growing up to size defined in `sweep_end`. Here, we repeat the payload
 you provided to match the desired size, or we generate a random one if no payload was provided.

@@ -2,6 +2,7 @@
 
 import os
 import sys
+import time
 from . import icmp
 from . import network
 
@@ -226,7 +227,7 @@ class ResponseList:
 
 class Communicator:
     """Instance actually communicating over the network, sending messages and handling responses"""
-    def __init__(self, target, payload_provider, timeout, socket_options=(), seed_id=None,
+    def __init__(self, target, payload_provider, timeout, interval, socket_options=(), seed_id=None,
                  verbose=False, output=sys.stdout):
         """Creates an instance that can handle communication with the target device
 
@@ -236,6 +237,8 @@ class Communicator:
         :type payload_provider: PayloadProvider
         :param timeout: Timeout that will apply to all ping messages, in seconds
         :type timeout: Union[int, float]
+        :param interval: Interval to wait between pings, in seconds
+        :type interval: int
         :param socket_options: Options to specify for the network.Socket
         :type socket_options: tuple
         :param seed_id: The first ICMP packet ID to use
@@ -247,6 +250,7 @@ class Communicator:
         self.socket = network.Socket(target, 'icmp', source=None, options=socket_options)
         self.provider = payload_provider
         self.timeout = timeout
+        self.interval = interval
         self.responses = ResponseList(verbose=verbose, output=output)
         self.seed_id = seed_id
         # note that to make Communicator instances thread safe, the seed ID must be unique per thread
@@ -335,3 +339,6 @@ class Communicator:
                 self.responses.append(self.listen_for(identifier, self.timeout, payload_bytes_sent))
 
             seq = self.increase_seq(seq)
+
+            if self.interval:
+                time.sleep(self.interval)
