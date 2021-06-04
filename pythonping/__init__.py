@@ -12,6 +12,7 @@ def ping(target,
          timeout=2,
          count=4,
          size=1,
+         interval=0,
          payload=None,
          sweep_start=None,
          sweep_end=None,
@@ -29,6 +30,8 @@ def ping(target,
     :type count: int
     :param size: Size of the entire packet to send
     :type size: int
+    :param interval: Interval to wait between pings
+    :type interval: int
     :param payload: Payload content, leave None if size is set to use random text
     :type payload: Union[str, bytes]
     :param sweep_start: If size is not set, initial size in a sweep of sizes
@@ -70,7 +73,7 @@ def ping(target,
             SEED_IDs.append(seed_id)
             break
 
-    comm = executor.Communicator(target, provider, timeout, socket_options=options, verbose=verbose, output=out,
+    comm = executor.Communicator(target, provider, timeout, interval, socket_options=options, verbose=verbose, output=out,
                                  seed_id=seed_id)
     comm.run(match_payloads=match)
 
