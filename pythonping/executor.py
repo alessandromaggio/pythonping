@@ -124,7 +124,7 @@ class Response:
             return 'Request timed out'
         elif self.success:
             return 'Reply from {0}, {1} bytes in {2}ms'.format(self.message.source,
-                                                               len(self.message.packet.packet),
+                                                               len(self.message.packet.payload),
                                                                self.time_elapsed_ms)
         else:
             # Not successful, but with some code (e.g. destination unreachable)
