@@ -52,6 +52,9 @@ class Message:
         :type source_socket: network.Socket"""
         source_socket.send(self.packet.packet)
 
+    def __repr__(self):
+        return repr(self.packet)
+
 
 def represent_seconds_in_ms(seconds):
     """Converts seconds into human-readable milliseconds with 2 digits decimal precision
@@ -65,15 +68,21 @@ def represent_seconds_in_ms(seconds):
 
 class Response:
     """Represents a response to an ICMP message, with metadata like timing"""
-    def __init__(self, message, time_elapsed):
+    def __init__(self, message, time_elapsed, source_request=None, repr_format=None):
         """Creates a representation of ICMP message received in response
 
         :param message: The message received
         :type message: Union[None, Message]
         :param time_elapsed: Time elapsed since the original request was sent, in seconds
-        :type time_elapsed: float"""
+        :type time_elapsed: float
+        :param source_request: ICMP packet represeting the request that originated this response
+        :type source_request: ICMP
+        :param repr_format: How to __repr__ the response. Allowed: legacy, None
+        :type repr_format: str"""
         self.message = message
         self.time_elapsed = time_elapsed
+        self.source_request = source_request
+        self.repr_format = repr_format
 
     @property
     def success(self):
@@ -119,17 +128,31 @@ class Response:
     def time_elapsed_ms(self):
         return represent_seconds_in_ms(self.time_elapsed)
 
-    def __repr__(self):
+    def legacy_repr(self):
         if self.message is None:
             return 'Request timed out'
         elif self.success:
             return 'Reply from {0}, {1} bytes in {2}ms'.format(self.message.source,
-                                                               len(self.message.packet.payload),
+                                                               len(self.message.packet.raw),
                                                                self.time_elapsed_ms)
         else:
             # Not successful, but with some code (e.g. destination unreachable)
             return '{0} from {1} in {2}ms'.format(self.error_message, self.message.source, self.time_elapsed_ms)
 
+    def __repr__(self):
+        if self.repr_format == 'legacy':
+            return self.legacy_repr()
+        if self.message is None:
+            return 'Timed out'
+        elif self.success:
+            return 'status=OK\tfrom={0}\tms={1}\t\tbytes\tsnt={2}\trcv={3}'.format(
+                self.message.source,
+                self.time_elapsed_ms,
+                len(self.source_request.raw)+20,
+                len(self.message.packet.raw)
+            )
+        else:
+            return 'status=ERR\tfrom={1}\terror="{0}"'.format(self.message.source, self.error_message)
 
 class ResponseList:
     """Represents a series of ICMP responses"""
@@ -228,7 +251,7 @@ class ResponseList:
 class Communicator:
     """Instance actually communicating over the network, sending messages and handling responses"""
     def __init__(self, target, payload_provider, timeout, interval, socket_options=(), seed_id=None,
-                 verbose=False, output=sys.stdout):
+                 verbose=False, output=sys.stdout, repr_format=None):
         """Creates an instance that can handle communication with the target device
 
         :param target: IP or hostname of the remote device
@@ -246,13 +269,16 @@ class Communicator:
         :param verbose: Flag to enable verbose mode, defaults to False
         :type verbose: bool
         :param output: File where to write verbose output, defaults to stdout
-        :type output: file"""
+        :type output: file
+        :param repr_format: How to __repr__ the response. Allowed: legacy, None
+        :type repr_format: str"""
         self.socket = network.Socket(target, 'icmp', source=None, options=socket_options)
         self.provider = payload_provider
         self.timeout = timeout
         self.interval = interval
         self.responses = ResponseList(verbose=verbose, output=output)
         self.seed_id = seed_id
+        self.repr_format = repr_format
         # note that to make Communicator instances thread safe, the seed ID must be unique per thread
         if self.seed_id is None:
             self.seed_id = os.getpid() & 0xFFFF
@@ -269,15 +295,15 @@ class Communicator:
         :type sequence_number: int
         :param payload: The payload of the ICMP message
         :type payload: Union[str, bytes]
-        :rtype: bytes"""
+        :rtype: ICMP"""
         i = icmp.ICMP(
             icmp.Types.EchoRequest,
             payload=payload,
             identifier=packet_id, sequence_number=sequence_number)
         self.socket.send(i.packet)
-        return i.payload
+        return i
 
-    def listen_for(self, packet_id, timeout, payload_pattern=None):
+    def listen_for(self, packet_id, timeout, payload_pattern=None, source_request=None):
         """Listens for a packet of a given id for a given timeout
 
         :param packet_id: The ID of the packet to listen for, the same for request and response
@@ -307,8 +333,8 @@ class Communicator:
                         payload_matched = (payload_pattern == response.payload)
 
                     if payload_matched:
-                        return Response(Message('', response, source_socket[0]), timeout - time_left)
-        return Response(None, timeout)
+                        return Response(Message('', response, source_socket[0]), timeout - time_left, source_request, repr_format=self.repr_format)
+        return Response(None, timeout, source_request, repr_format=self.repr_format)
 
     @staticmethod
     def increase_seq(sequence_number):
@@ -332,11 +358,11 @@ class Communicator:
         identifier = self.seed_id
         seq = 1
         for payload in self.provider:
-            payload_bytes_sent = self.send_ping(identifier, seq, payload)
+            icmp_out = self.send_ping(identifier, seq, payload)
             if not match_payloads:
-                self.responses.append(self.listen_for(identifier, self.timeout))
+                self.responses.append(self.listen_for(identifier, self.timeout, None, icmp_out))
             else:
-                self.responses.append(self.listen_for(identifier, self.timeout, payload_bytes_sent))
+                self.responses.append(self.listen_for(identifier, self.timeout, icmp_out.payload, icmp_out))
 
             seq = self.increase_seq(seq)
 
