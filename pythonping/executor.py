@@ -262,7 +262,7 @@ class Communicator:
             payload=payload,
             identifier=packet_id, sequence_number=sequence_number)
         self.socket.send(i.packet)
-        return i.payload
+        return i.payload 
 
     def listen_for(self, packet_id, timeout, payload_pattern=None):
         """Listens for a packet of a given id for a given timeout
