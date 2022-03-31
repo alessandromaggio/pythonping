@@ -154,6 +154,7 @@ class ICMP:
         self.id = identifier & 0xFFFF           # Prevent identifiers bigger than 16 bits
         self.sequence_number = sequence_number
         self.received_checksum = None
+        self.time = time.perf_counter()
 
     @property
     def packet(self):
@@ -213,5 +214,5 @@ class ICMP:
             self.message_code, \
             self.received_checksum, \
             self.id, \
-            sequence = struct.unpack("!bbHHH", raw[20:28])
+            self.sequence_number = struct.unpack("!bbHHH", raw[20:28])
         self.payload = raw[28:]

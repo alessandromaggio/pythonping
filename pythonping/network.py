@@ -2,7 +2,6 @@ import socket
 import select
 import time
 
-
 class Socket:
     DONT_FRAGMENT = (socket.SOL_IP, 10, 1)           # Option value for raw socket
 
