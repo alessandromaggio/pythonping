@@ -173,6 +173,8 @@ class ResponseList:
         self.rtt_min = 0
         self.rtt_max = 0
         self.packets_lost = 0
+        # this variable holds int number of lost packets
+        self.packets_lost_number = 0
         for response in initial_set:
             self.append(response)
 
@@ -228,6 +230,7 @@ class ResponseList:
                 self.rtt_min = value.time_elapsed
 
         self.packets_lost = self.packets_lost + ((0 if value.success else 1) - self.packets_lost) / len(self)
+        if not value.success: self.packets_lost_number += 1
 
         if self.verbose:
             print(value, file=self.output)
