@@ -154,11 +154,14 @@ class ICMP:
         self.id = identifier & 0xFFFF           # Prevent identifiers bigger than 16 bits
         self.sequence_number = sequence_number
         self.received_checksum = None
+        self.raw = None
 
     @property
     def packet(self):
         """The raw packet with header, ready to be sent from a socket"""
-        return self._header(check=self.expected_checksum) + self.payload
+        p = self._header(check=self.expected_checksum) + self.payload
+        if (self.raw is None): self.raw = p
+        return p
 
     def _header(self, check=0):
         """The raw ICMP header
@@ -174,6 +177,9 @@ class ICMP:
                            check,
                            self.id,
                            self.sequence_number)
+
+    def __repr__(self):
+        return ' '.join('{:02x}'.format(b) for b in self.raw)
 
     @property
     def is_valid(self):
@@ -209,9 +215,10 @@ class ICMP:
 
         :param raw: The raw packet, including payload
         :type raw: bytes"""
+        self.raw = raw
         self.message_type, \
             self.message_code, \
             self.received_checksum, \
             self.id, \
-            sequence = struct.unpack("bbHHh", raw[20:28])
+            self.sequence_number = struct.unpack("bbHHh", raw[20:28])
         self.payload = raw[28:]

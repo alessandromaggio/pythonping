@@ -19,7 +19,8 @@ def ping(target,
          df=False,
          verbose=False,
          out=sys.stdout,
-         match=False):
+         match=False,
+         out_format='legacy'):
     """Pings a remote host and handles the responses
 
     :param target: The remote hostname or IP address to ping
@@ -49,6 +50,8 @@ def ping(target,
     8.8.8.8 with 1000 bytes and reply is truncated to only the first 74 of request payload with packet identifiers
     the same in request and reply)
     :type match: bool
+    :param repr_format: How to __repr__ the response. Allowed: legacy, None
+    :type repr_format: str
     :return: List with the result of each ping
     :rtype: executor.ResponseList"""
     provider = payload_provider.Repeat(b'', 0)
@@ -74,7 +77,7 @@ def ping(target,
             break
 
     comm = executor.Communicator(target, provider, timeout, interval, socket_options=options, verbose=verbose, output=out,
-                                 seed_id=seed_id)
+                                 seed_id=seed_id, repr_format=out_format)
     comm.run(match_payloads=match)
 
     SEED_IDs.remove(seed_id)
