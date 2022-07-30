@@ -4,7 +4,7 @@ with open('README.md', 'r') as file:
     long_description = file.read()
 
 setup(name='pythonping',
-      version='1.1.1',
+      version='1.1.2',
       description='A simple way to ping in Python',
       url='https://github.com/alessandromaggio/pythonping',
       author='Alessandro Maggio',
