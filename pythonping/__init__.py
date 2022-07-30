@@ -78,7 +78,7 @@ def ping(target,
             break
 
 
-    comm = executor.Communicator(target, provider, timeout, socket_options=options, verbose=verbose, output=out,
+    comm = executor.Communicator(target, provider, timeout, interval, socket_options=options, verbose=verbose, output=out,
                                  seed_id=seed_id, source=source, repr_format=out_format)
 
     comm.run(match_payloads=match)
