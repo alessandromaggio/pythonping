@@ -12,6 +12,7 @@ def ping(target,
          timeout=2,
          count=4,
          size=1,
+         interval=0,
          payload=None,
          sweep_start=None,
          sweep_end=None,
@@ -19,8 +20,8 @@ def ping(target,
          verbose=False,
          out=sys.stdout,
          match=False,
-         source=None):
-
+         source=None,
+         out_format='legacy'):
     """Pings a remote host and handles the responses
 
     :param target: The remote hostname or IP address to ping
@@ -31,6 +32,8 @@ def ping(target,
     :type count: int
     :param size: Size of the entire packet to send
     :type size: int
+    :param interval: Interval to wait between pings
+    :type interval: int
     :param payload: Payload content, leave None if size is set to use random text
     :type payload: Union[str, bytes]
     :param sweep_start: If size is not set, initial size in a sweep of sizes
@@ -48,17 +51,19 @@ def ping(target,
     8.8.8.8 with 1000 bytes and reply is truncated to only the first 74 of request payload with packet identifiers
     the same in request and reply)
     :type match: bool
+    :param repr_format: How to __repr__ the response. Allowed: legacy, None
+    :type repr_format: str
     :return: List with the result of each ping
     :rtype: executor.ResponseList"""
     provider = payload_provider.Repeat(b'', 0)
-    if size and size > 0:
-        if not payload:
-            payload = random_text(size)
-        provider = payload_provider.Repeat(payload, count)
-    elif sweep_start and sweep_end and sweep_end >= sweep_start:
+    if sweep_start and sweep_end and sweep_end >= sweep_start:
         if not payload:
             payload = random_text(sweep_start)
         provider = payload_provider.Sweep(payload, sweep_start, sweep_end)
+    elif size and size > 0:
+        if not payload:
+            payload = random_text(size)
+        provider = payload_provider.Repeat(payload, count)
     options = ()
     if df:
         options = network.Socket.DONT_FRAGMENT
@@ -72,8 +77,10 @@ def ping(target,
             SEED_IDs.append(seed_id)
             break
 
+
     comm = executor.Communicator(target, provider, timeout, socket_options=options, verbose=verbose, output=out,
-                                 seed_id=seed_id, source=source)
+                                 seed_id=seed_id, source=source, repr_format=out_format)
+
     comm.run(match_payloads=match)
 
     SEED_IDs.remove(seed_id)
