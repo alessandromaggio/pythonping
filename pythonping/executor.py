@@ -250,8 +250,8 @@ class ResponseList:
 
 class Communicator:
     """Instance actually communicating over the network, sending messages and handling responses"""
-    def __init__(self, target, payload_provider, timeout, interval, socket_options=(), seed_id=None,
-                 verbose=False, output=sys.stdout, repr_format=None):
+    def __init__(self, target, payload_provider, timeout, socket_options=(), seed_id=None,
+                 verbose=False, output=sys.stdout, source=None, repr_format=None):
         """Creates an instance that can handle communication with the target device
 
         :param target: IP or hostname of the remote device
@@ -272,7 +272,7 @@ class Communicator:
         :type output: file
         :param repr_format: How to __repr__ the response. Allowed: legacy, None
         :type repr_format: str"""
-        self.socket = network.Socket(target, 'icmp', source=None, options=socket_options)
+        self.socket = network.Socket(target, 'icmp', options=socket_options, source=source)
         self.provider = payload_provider
         self.timeout = timeout
         self.interval = interval

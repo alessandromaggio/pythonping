@@ -20,6 +20,7 @@ def ping(target,
          verbose=False,
          out=sys.stdout,
          match=False,
+         source=None,
          out_format='legacy'):
     """Pings a remote host and handles the responses
 
@@ -76,8 +77,10 @@ def ping(target,
             SEED_IDs.append(seed_id)
             break
 
-    comm = executor.Communicator(target, provider, timeout, interval, socket_options=options, verbose=verbose, output=out,
-                                 seed_id=seed_id, repr_format=out_format)
+
+    comm = executor.Communicator(target, provider, timeout, socket_options=options, verbose=verbose, output=out,
+                                 seed_id=seed_id, source=source, repr_format=out_format)
+
     comm.run(match_payloads=match)
 
     SEED_IDs.remove(seed_id)
