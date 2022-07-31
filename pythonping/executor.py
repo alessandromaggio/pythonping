@@ -215,17 +215,19 @@ class ResponseList:
 
     def append(self, value):
         self._responses.append(value)
-        if len(self) == 1:
-            self.rtt_avg = value.time_elapsed
-            self.rtt_max = value.time_elapsed
-            self.rtt_min = value.time_elapsed
-        else:
-            # Calculate the total of time, add the new value and divide for the new number
-            self.rtt_avg = ((self.rtt_avg * (len(self)-1)) + value.time_elapsed) / len(self)
-            if value.time_elapsed > self.rtt_max:
+        if value.success:
+            success_responses = len(self) - self.packets_lost * (len(self) - 1)
+            if success_responses == 1:
+                self.rtt_avg = value.time_elapsed
                 self.rtt_max = value.time_elapsed
-            if value.time_elapsed < self.rtt_min:
                 self.rtt_min = value.time_elapsed
+            else:
+                # Calculate the total of time, add the new value and divide for the new number
+                self.rtt_avg = ((self.rtt_avg * (success_responses - 1)) + value.time_elapsed) / success_responses
+                if value.time_elapsed > self.rtt_max:
+                    self.rtt_max = value.time_elapsed
+                if value.time_elapsed < self.rtt_min:
+                    self.rtt_min = value.time_elapsed
 
         self.packets_lost = self.packets_lost + ((0 if value.success else 1) - self.packets_lost) / len(self)
 
