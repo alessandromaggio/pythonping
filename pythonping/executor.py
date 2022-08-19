@@ -172,7 +172,8 @@ class ResponseList:
         self.rtt_avg = 0
         self.rtt_min = 0
         self.rtt_max = 0
-        self.packets_lost = 0
+        self.stats_packets_sent = 0
+        self.stats_packets_returned = 0
         for response in initial_set:
             self.append(response)
 
@@ -212,9 +213,13 @@ class ResponseList:
 
     def clear(self):
         self._responses = []
+        self.stats_packets_sent = 0
+        self.stats_packets_returned = 0
+
 
     def append(self, value):
         self._responses.append(value)
+        self.stats_packets_sent += 1
         if len(self) == 1:
             self.rtt_avg = value.time_elapsed
             self.rtt_max = value.time_elapsed
@@ -226,12 +231,18 @@ class ResponseList:
                 self.rtt_max = value.time_elapsed
             if value.time_elapsed < self.rtt_min:
                 self.rtt_min = value.time_elapsed
-
-        self.packets_lost = self.packets_lost + ((0 if value.success else 1) - self.packets_lost) / len(self)
+        if value.success: self.stats_packets_returned += 1
 
         if self.verbose:
             print(value, file=self.output)
-
+    @property
+    def stats_packets_lost(self): return self.stats_packets_sent - self.stats_packets_returned
+    @property
+    def stats_success_ratio(self): return self.stats_packets_returned / self.stats_packets_sent
+    @property
+    def stats_lost_ratio(self): return 1 - self.stats_success_ratio
+    @property
+    def packets_lost(self): return self.stats_lost_ratio
     def __len__(self):
         return len(self._responses)
 
