@@ -235,14 +235,19 @@ class ResponseList:
 
         if self.verbose:
             print(value, file=self.output)
+
     @property
     def stats_packets_lost(self): return self.stats_packets_sent - self.stats_packets_returned
+
     @property
     def stats_success_ratio(self): return self.stats_packets_returned / self.stats_packets_sent
+
     @property
     def stats_lost_ratio(self): return 1 - self.stats_success_ratio
+
     @property
     def packets_lost(self): return self.stats_lost_ratio
+    
     def __len__(self):
         return len(self._responses)
 
