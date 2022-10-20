@@ -1,7 +1,7 @@
 import sys
+from random import randint
 from . import network, executor, payload_provider
 from .utils import random_text
-from random import randint
 
 
 # this needs to be available across all thread usages and will hold ints
