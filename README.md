@@ -71,3 +71,9 @@ which payloads to send to the remote device. For that, we have several classes i
 `payload_provider` module. You may want to create your own provider by extending
 `payload_provider.PayloadProvider`. If you are interested in that, you should check the
 documentation of both `executor` and `payload_provider` module.
+
+## Code Structure
+## Build status
+## Tests
+## Contributing
+## Code Style
