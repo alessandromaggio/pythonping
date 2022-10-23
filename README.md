@@ -73,7 +73,7 @@ which payloads to send to the remote device. For that, we have several classes i
 documentation of both `executor` and `payload_provider` module.
 
 ## Code Structure
-![ER1](https://user-images.githubusercontent.com/59803757/197367421-9b58917d-e54b-46b2-b1b4-f88fd103a0b9.png)
+![ER1](https://user-images.githubusercontent.com/59803757/197367679-9d448939-0b41-47c2-960e-6588a9062b34.png)\
 
 ## Build status
 ## Tests
