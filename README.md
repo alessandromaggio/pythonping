@@ -113,7 +113,22 @@ Has various subclasses including Message, Response, Success, and Communicator us
 ### Init
 Uses network, executor, payload_provider and utils.random_text to construct and send ICMP packets to ping a network. 
 
-## Build status
 ## Tests
 ## Contributing
-## Code Style
+Before contributing read through the contribution guidlines found the CONTRIBUTING file. 
+
+### Code Style
+A few key points when contributing to this repo are as follows:
+1. Use tabs over spaces.
+2. Format doc strings as such:
+    """DESCRIPTION
+
+        :param X: DESCRIPTION
+        :type X: Type
+        :param Y: DESCRIPTION
+        :type Y: Type
+    """
+    Please add doc strings to all functions added.
+3. Do not add spaces between docstring and first function line.
+4. Do not go over 200 characters per line.
+5. When closing multiline items under brackets('()', '[]', ... etc) put the closing bracket on it's own line. 
