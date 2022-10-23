@@ -1,9 +1,16 @@
 import unittest
+
+from pexpect import ExceptionPexpect
 from pythonping import payload_provider
 
 
 class PayloadProviderTestCase(unittest.TestCase):
     """Tests for PayloadProvider class"""
+
+    def test_basic(self):
+        """Verifies that a  provider raises error when calling own functions"""
+        self.assertRaises(NotImplementedError, payload_provider.PayloadProvider)
+
 
     def test_list(self):
         """Verifies that a list provider generates the correct payloads"""

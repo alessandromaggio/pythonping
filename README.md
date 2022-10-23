@@ -128,6 +128,18 @@ To run the test cases in a specific file FILE we must run the following command:
 python -m unittest discover -s <test_directory> -p FILE
 ```
 
+Another option is to run the following from the top level directory:
+
+```
+pytest test
+```
+
+To test for coverage simply run:
+
+```
+coverage run -m pytest test
+```
+
 ## Contributing
 Before contributing read through the contribution guidlines found the CONTRIBUTING file. 
 
