@@ -116,10 +116,16 @@ Uses network, executor, payload_provider and utils.random_text to construct and 
 ## Tests
 A test package exists under the folder test, and contains a serise of unit tests. Before commiting changes make sure to run the test bench and make sure all corrisponding cases pass. For new functionality new test cases must be added and documented.
 
-Each file in pythonping has it's corresponding testcase. To run a test on a specific file (let's say filename.py) simply enter the test directory and run the command:
+To run testcases we can simply use the ```unitest discover``` utility by running the following command:
 
 ```
-python -m unittest filename.py
+python -m unittest discover <test_directory>
+```
+
+To run the test cases in a specific file FILE we must run the following command:
+
+```
+python -m unittest discover -s <test_directory> -p FILE
 ```
 
 ## Contributing
