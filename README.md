@@ -88,9 +88,9 @@ Our project directory structure contains all src files in the pythonping folder,
 └── setup.py                # Instalation
 ```
 
-The code structure is as follows:
+A UML Diagram of the code structure is below:
 
-![ER1](https://user-images.githubusercontent.com/59803757/197367679-9d448939-0b41-47c2-960e-6588a9062b34.png)\git
+![ER1](https://user-images.githubusercontent.com/59803757/197367679-9d448939-0b41-47c2-960e-6588a9062b34.png)
 
 As per the uml diagram above five distinct classes outside of init exist in this package: Executor, Icmp, Payload Provider, and Utils. Each of them rely on attributes which have been listed as sub-classes for brevities sake. An overview of each class is as follows.
 
