@@ -77,23 +77,23 @@ documentation of both `executor` and `payload_provider` module.
 
 As per the uml diagram above five distinct classes outside of init exist in this package: Executor, Icmp, Payload Provider, and Utils. Each of them rely on attributes which have been listed as sub-classes for brevities sake. An overview of each class is as follows.
 
-###Utils 
+### Utils 
 Simply generates random text. See function random_text.
 
-###Network 
+### Network 
 Opens a socket to send and recive data. See functions send, recv, and del.
 
-###Payload Provider
+### Payload Provider
 Generates ICMP Payloads with no Headers. It's functionaly a interface. It has three
 functions init, iter, and next, which are all implmented by subclasses List, Repeat, and Sweep which store payloads in diffrent lists.
 
-###ICMP
+### ICMP
 Generates the ICMP heaser through subclass ICMPType, and various helper functions.
 
-###Executor
+### Executor
 Has various subclasses including Message, Response, Success, and Communicator used for sending icmp packets and collecting data.
 
-###Init
+### Init
 Uses network, executor, payload_provider and utils.random_text to construct and send ICMP packets to ping a network. 
 
 ## Build status
