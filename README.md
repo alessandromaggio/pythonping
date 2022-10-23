@@ -75,6 +75,8 @@ documentation of both `executor` and `payload_provider` module.
 ## Code Structure
 
 ### Top Level Directory Layout
+Our project directory structure contains all src files in the pythonping folder, test cases in another folder, and helping documentation in on the top level directory.
+
 ```
 .
 ├── pythonping              # Source files 
@@ -85,6 +87,8 @@ documentation of both `executor` and `payload_provider` module.
 ├── README.md               # An md file
 └── setup.py                # Instalation
 ```
+
+The code structure is as follows:
 
 ![ER1](https://user-images.githubusercontent.com/59803757/197367679-9d448939-0b41-47c2-960e-6588a9062b34.png)\git
 
