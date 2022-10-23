@@ -75,6 +75,7 @@ documentation of both `executor` and `payload_provider` module.
 ## Code Structure
 
 ### Top Level Directory Layout
+```
 .
 ├── pythonping              # Source files 
 ├── test                    # Automated Testcases for the package
@@ -83,8 +84,9 @@ documentation of both `executor` and `payload_provider` module.
 ├── LICENSE                 # MIT License
 ├── README.md               # An md file
 └── setup.py                # Instalation
+```
 
-![ER1](https://user-images.githubusercontent.com/59803757/197367679-9d448939-0b41-47c2-960e-6588a9062b34.png)\
+![ER1](https://user-images.githubusercontent.com/59803757/197367679-9d448939-0b41-47c2-960e-6588a9062b34.png)\git
 
 As per the uml diagram above five distinct classes outside of init exist in this package: Executor, Icmp, Payload Provider, and Utils. Each of them rely on attributes which have been listed as sub-classes for brevities sake. An overview of each class is as follows.
 
