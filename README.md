@@ -114,6 +114,14 @@ Has various subclasses including Message, Response, Success, and Communicator us
 Uses network, executor, payload_provider and utils.random_text to construct and send ICMP packets to ping a network. 
 
 ## Tests
+A test package exists under the folder test, and contains a serise of unit tests. Before commiting changes make sure to run the test bench and make sure all corrisponding cases pass. For new functionality new test cases must be added and documented.
+
+Each file in pythonping has it's corresponding testcase. To run a test on a specific file (let's say filename.py) simply enter the test directory and run the command:
+
+```
+python -m unittest filename.py
+```
+
 ## Contributing
 Before contributing read through the contribution guidlines found the CONTRIBUTING file. 
 
