@@ -92,35 +92,34 @@ class Response:
     def error_message(self):
         if self.message is None:
             return 'No response'
-        else:
-            if self.message.packet.message_type == 0 and self.message.packet.message_code == 0:
-                # Echo Reply, response OK - no error
-                return None
-            elif self.message.packet.message_type == 3:
-                # Destination unreachable, returning more details based on message code
-                unreachable_messages = [
-                    'Network Unreachable',
-                    'Host Unreachable',
-                    'Protocol Unreachable',
-                    'Port Unreachable',
-                    'Fragmentation Required',
-                    'Source Route Failed',
-                    'Network Unknown',
-                    'Host Unknown',
-                    'Source Host Isolated',
-                    'Communication with Destination Network is Administratively Prohibited',
-                    'Communication with Destination Host is Administratively Prohibited',
-                    'Network Unreachable for ToS',
-                    'Host Unreachable for ToS',
-                    'Communication Administratively Prohibited',
-                    'Host Precedence Violation',
-                    'Precedence Cutoff in Effect'
-                ]
-                try:
-                    return unreachable_messages[self.message.packet.message_code]
-                except IndexError:
-                    # Should never generate IndexError, this serves as additional protection
-                    return 'Unreachable'
+        if self.message.packet.message_type == 0 and self.message.packet.message_code == 0:
+            # Echo Reply, response OK - no error
+            return None
+        if self.message.packet.message_type == 3:
+            # Destination unreachable, returning more details based on message code
+            unreachable_messages = [
+                'Network Unreachable',
+                'Host Unreachable',
+                'Protocol Unreachable',
+                'Port Unreachable',
+                'Fragmentation Required',
+                'Source Route Failed',
+                'Network Unknown',
+                'Host Unknown',
+                'Source Host Isolated',
+                'Communication with Destination Network is Administratively Prohibited',
+                'Communication with Destination Host is Administratively Prohibited',
+                'Network Unreachable for ToS',
+                'Host Unreachable for ToS',
+                'Communication Administratively Prohibited',
+                'Host Precedence Violation',
+                'Precedence Cutoff in Effect'
+            ]
+            try:
+                return unreachable_messages[self.message.packet.message_code]
+            except IndexError:
+                # Should never generate IndexError, this serves as additional protection
+                return 'Unreachable'
         # Error was not identified
         return 'Network Error'
 
@@ -131,28 +130,26 @@ class Response:
     def legacy_repr(self):
         if self.message is None:
             return 'Request timed out'
-        elif self.success:
+        if self.success:
             return 'Reply from {0}, {1} bytes in {2}ms'.format(self.message.source,
                                                                len(self.message.packet.raw),
                                                                self.time_elapsed_ms)
-        else:
-            # Not successful, but with some code (e.g. destination unreachable)
-            return '{0} from {1} in {2}ms'.format(self.error_message, self.message.source, self.time_elapsed_ms)
+        # Not successful, but with some code (e.g. destination unreachable)
+        return '{0} from {1} in {2}ms'.format(self.error_message, self.message.source, self.time_elapsed_ms)
 
     def __repr__(self):
         if self.repr_format == 'legacy':
             return self.legacy_repr()
         if self.message is None:
             return 'Timed out'
-        elif self.success:
+        if self.success:
             return 'status=OK\tfrom={0}\tms={1}\t\tbytes\tsnt={2}\trcv={3}'.format(
                 self.message.source,
                 self.time_elapsed_ms,
                 len(self.source_request.raw)+20,
                 len(self.message.packet.raw)
             )
-        else:
-            return 'status=ERR\tfrom={1}\terror="{0}"'.format(self.message.source, self.error_message)
+        return 'status=ERR\tfrom={1}\terror="{0}"'.format(self.message.source, self.error_message)
 
 class ResponseList:
     """Represents a series of ICMP responses"""
@@ -231,23 +228,28 @@ class ResponseList:
                 self.rtt_max = value.time_elapsed
             if value.time_elapsed < self.rtt_min:
                 self.rtt_min = value.time_elapsed
-        if value.success: self.stats_packets_returned += 1
+        if value.success:
+            self.stats_packets_returned += 1
 
         if self.verbose:
             print(value, file=self.output)
 
     @property
-    def stats_packets_lost(self): return self.stats_packets_sent - self.stats_packets_returned
+    def stats_packets_lost(self):
+        return self.stats_packets_sent - self.stats_packets_returned
 
     @property
-    def stats_success_ratio(self): return self.stats_packets_returned / self.stats_packets_sent
+    def stats_success_ratio(self):
+        return self.stats_packets_returned / self.stats_packets_sent
 
     @property
-    def stats_lost_ratio(self): return 1 - self.stats_success_ratio
+    def stats_lost_ratio(self):
+        return 1 - self.stats_success_ratio
 
     @property
-    def packets_lost(self): return self.stats_lost_ratio
-    
+    def packets_lost(self):
+        return self.stats_lost_ratio
+
     def __len__(self):
         return len(self._responses)
 

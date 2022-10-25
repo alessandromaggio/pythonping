@@ -1,9 +1,5 @@
 import os
-import socket
 import struct
-import select
-import time
-
 
 def checksum(data):
     """Creates the ICMP checksum as in RFC 1071
@@ -61,64 +57,64 @@ class Types(ICMPType):
     class SourceQuench(ICMPType):
         type_id = 4
         SOURCE_QUENCH = (type_id, 0,)
-        
+
     class Redirect(ICMPType):
         type_id = 5
         FOR_NETWORK = (type_id, 0,)
         FOR_HOST = (type_id, 1,)
         FOR_TOS_AND_NETWORK = (type_id, 2,)
         FOR_TOS_AND_HOST = (type_id, 3,)
-        
+
     class EchoRequest(ICMPType):
         type_id = 8
         ECHO_REQUEST = (type_id, 0,)
-        
+
     class RouterAdvertisement(ICMPType):
         type_id = 9
         ROUTER_ADVERTISEMENT = (type_id, 0,)
-        
+
     class RouterSolicitation(ICMPType):
         type_id = 10
         ROUTER_SOLICITATION = (type_id, 0)
         # Aliases
         ROUTER_DISCOVERY = ROUTER_SOLICITATION
         ROUTER_SELECTION = ROUTER_SOLICITATION
-        
+
     class TimeExceeded(ICMPType):
         type_id = 11
         TTL_EXPIRED_IN_TRANSIT = (type_id, 0)
         FRAGMENT_REASSEMBLY_TIME_EXCEEDED = (type_id, 1)
-        
+
     class BadIPHeader(ICMPType):
         type_id = 12
         POINTER_INDICATES_ERROR = (type_id, 0)
         MISSING_REQUIRED_OPTION = (type_id, 1)
         BAD_LENGTH = (type_id, 2)
-        
+
     class Timestamp(ICMPType):
         type_id = 13
         TIMESTAMP = (type_id, 0)
-        
+
     class TimestampReply(ICMPType):
         type_id = 14
         TIMESTAMP_REPLY = (type_id, 0)
-        
+
     class InformationRequest(ICMPType):
         type_id = 15
         INFORMATION_REQUEST = (type_id, 0)
-        
+
     class InformationReply(ICMPType):
         type_id = 16
         INFORMATION_REPLY = (type_id, 0)
-        
+
     class AddressMaskRequest(ICMPType):
         type_id = 17
         ADDRESS_MASK_REQUEST = (type_id, 0)
-        
+
     class AddressMaskReply(ICMPType):
         type_id = 18
         ADDRESS_MASK_REPLY = (type_id, 0)
-        
+
     class Traceroute(ICMPType):
         type_id = 30
         INFORMATION_REQUEST = (type_id, 30)
@@ -160,7 +156,8 @@ class ICMP:
     def packet(self):
         """The raw packet with header, ready to be sent from a socket"""
         p = self._header(check=self.expected_checksum) + self.payload
-        if (self.raw is None): self.raw = p
+        if self.raw is None:
+            self.raw = p
         return p
 
     def _header(self, check=0):
@@ -171,7 +168,7 @@ class ICMP:
         :return: The packed header
         :rtype: bytes"""
         # TODO implement sequence number
-        return struct.pack("bbHHh",
+        return struct.pack("BBHHH",
                            self.message_type,
                            self.message_code,
                            check,
@@ -220,5 +217,5 @@ class ICMP:
             self.message_code, \
             self.received_checksum, \
             self.id, \
-            self.sequence_number = struct.unpack("bbHHh", raw[20:28])
+            self.sequence_number = struct.unpack("BBHHH", raw[20:28])
         self.payload = raw[28:]
