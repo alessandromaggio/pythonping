@@ -71,3 +71,91 @@ which payloads to send to the remote device. For that, we have several classes i
 `payload_provider` module. You may want to create your own provider by extending
 `payload_provider.PayloadProvider`. If you are interested in that, you should check the
 documentation of both `executor` and `payload_provider` module.
+
+## Code Structure
+
+### Top Level Directory Layout
+Our project directory structure contains all src files in the pythonping folder, test cases in another folder, and helping documentation in on the top level directory.
+
+```
+.
+├── pythonping              # Source files 
+├── test                    # Automated Testcases for the package
+├── CODE_OF_CONDUCT         # An md file containing code of conduct
+├── CONTRIBUTING            # Contributing Guidlins
+├── LICENSE                 # MIT License
+├── README.md               # An md file
+└── setup.py                # Instalation
+```
+
+A UML Diagram of the code structure is below:
+
+![ER1](https://user-images.githubusercontent.com/59803757/197367679-9d448939-0b41-47c2-960e-6588a9062b34.png)
+
+As per the uml diagram above five distinct classes outside of init exist in this package: Executor, Icmp, Payload Provider, and Utils. Each of them rely on attributes which have been listed as sub-classes for brevities sake. An overview of each class is as follows.
+
+### Utils 
+Simply generates random text. See function random_text.
+
+### Network 
+Opens a socket to send and recive data. See functions send, recv, and del.
+
+### Payload Provider
+Generates ICMP Payloads with no Headers. It's functionaly a interface. It has three
+functions init, iter, and next, which are all implmented by subclasses List, Repeat, and Sweep which store payloads in diffrent lists.
+
+### ICMP
+Generates the ICMP heaser through subclass ICMPType, and various helper functions.
+
+### Executor
+Has various subclasses including Message, Response, Success, and Communicator used for sending icmp packets and collecting data.
+
+### Init
+Uses network, executor, payload_provider and utils.random_text to construct and send ICMP packets to ping a network. 
+
+## Tests
+A test package exists under the folder test, and contains a serise of unit tests. Before commiting changes make sure to run the test bench and make sure all corrisponding cases pass. For new functionality new test cases must be added and documented.
+
+To run testcases we can simply use the ```unitest discover``` utility by running the following command:
+
+```
+python -m unittest discover <test_directory>
+```
+
+To run the test cases in a specific file FILE we must run the following command:
+
+```
+python -m unittest discover -s <test_directory> -p FILE
+```
+
+Another option is to run the following from the top level directory:
+
+```
+pytest test
+```
+
+To test for coverage simply run:
+
+```
+coverage run -m pytest test
+```
+
+## Contributing
+Before contributing read through the contribution guidlines found the CONTRIBUTING file. 
+
+### Code Style
+A few key points when contributing to this repo are as follows:
+1. Use tabs over spaces.
+2. Format doc strings as such:
+    ```
+    DESCRIPTION
+
+        :param X: DESCRIPTION
+        :type X: Type
+        :param Y: DESCRIPTION
+        :type Y: Type
+    ```
+    Please add doc strings to all functions added.
+3. Do not add spaces between docstring and first function line.
+4. Do not go over 200 characters per line.
+5. When closing multiline items under brackets('()', '[]', ... etc) put the closing bracket on it's own line. 
