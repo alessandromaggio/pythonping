@@ -257,8 +257,8 @@ class ResponseListTestCase(unittest.TestCase):
 
         self.assertEqual(rs.stats_packets_sent, rs.stats_packets_returned, 'unable to correctly count sent and returned packets when all responses successful')
         self.assertEqual(
-            rs.stats_packets_lost, 
-            0, 
+            rs.stats_packets_lost,
+            0,
             "Unable to calculate packet loss correctly when all responses successful"
         )
 
@@ -271,8 +271,8 @@ class ResponseListTestCase(unittest.TestCase):
         ])
         self.assertEqual(rs.stats_packets_returned, 0, 'unable to correctly count sent and returned packets when all responses failed')
         self.assertEqual(
-            rs.stats_lost_ratio, 
-            1.0, 
+            rs.stats_lost_ratio,
+            1.0,
             "Unable to calculate packet loss correctly when all responses failed"
         )
 
@@ -286,8 +286,8 @@ class ResponseListTestCase(unittest.TestCase):
         self.assertEqual(rs.stats_packets_sent, 4, 'unable to correctly count sent packets when some of the responses failed')
         self.assertEqual(rs.stats_packets_returned, 2, 'unable to correctly count returned packets when some of the responses failed')
         self.assertEqual(
-            rs.stats_lost_ratio, 
-            0.5, 
+            rs.stats_lost_ratio,
+            0.5,
             "Unable to calculate packet loss correctly when some of the responses failed"
         )
 
