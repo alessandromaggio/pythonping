@@ -171,7 +171,7 @@ class ICMP:
         :return: The packed header
         :rtype: bytes"""
         # TODO implement sequence number
-        return struct.pack("bbHHh",
+        return struct.pack("BBHHH",
                            self.message_type,
                            self.message_code,
                            check,
@@ -220,5 +220,5 @@ class ICMP:
             self.message_code, \
             self.received_checksum, \
             self.id, \
-            self.sequence_number = struct.unpack("bbHHh", raw[20:28])
+            self.sequence_number = struct.unpack("BBHHH", raw[20:28])
         self.payload = raw[28:]
