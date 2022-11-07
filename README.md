@@ -72,6 +72,10 @@ which payloads to send to the remote device. For that, we have several classes i
 `payload_provider.PayloadProvider`. If you are interested in that, you should check the
 documentation of both `executor` and `payload_provider` module.
 
+### Async Pings
+This package can now send pings asyncronusly instead of via threads. To achomplish this call the ping function asycrunosly from
+the script within which it was called.
+
 ## Code Structure
 
 ### Top Level Directory Layout
