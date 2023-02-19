@@ -21,7 +21,8 @@ def ping(target,
          out=sys.stdout,
          match=False,
          source=None,
-         out_format='legacy'):
+         out_format='legacy',
+         asyncPing=False):
     """Pings a remote host and handles the responses
 
     :param target: The remote hostname or IP address to ping
@@ -53,6 +54,8 @@ def ping(target,
     :type match: bool
     :param repr_format: How to __repr__ the response. Allowed: legacy, None
     :type repr_format: str
+    :param asyncPing: True if we expect to ping asyncronusly. False by deafult.
+    :type ayncPing: Boolean.
     :return: List with the result of each ping
     :rtype: executor.ResponseList"""
     provider = payload_provider.Repeat(b'', 0)
@@ -77,12 +80,16 @@ def ping(target,
             SEED_IDs.append(seed_id)
             break
 
-
-    comm = executor.Communicator(target, provider, timeout, interval, socket_options=options, verbose=verbose, output=out,
+    if asyncPing: # Proceeds to run ping asyncronusly if var is true
+        print ("Aysinc Activated!")
+        return 0
+    
+    else: 
+        comm = executor.Communicator(target, provider, timeout, interval, socket_options=options, verbose=verbose, output=out,
                                  seed_id=seed_id, source=source, repr_format=out_format)
 
-    comm.run(match_payloads=match)
+        comm.run(match_payloads=match)
 
-    SEED_IDs.remove(seed_id)
+        SEED_IDs.remove(seed_id)
 
-    return comm.responses
+        return comm.responses
