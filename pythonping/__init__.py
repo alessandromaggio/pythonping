@@ -51,7 +51,7 @@ def ping(target,
     8.8.8.8 with 1000 bytes and reply is truncated to only the first 74 of request payload with packet identifiers
     the same in request and reply)
     :type match: bool
-    :param repr_format: How to __repr__ the response. Allowed: legacy, None
+    :param repr_format: How to __repr__ the response. Allowed: legacy, cisco, None
     :type repr_format: str
     :return: List with the result of each ping
     :rtype: executor.ResponseList"""
