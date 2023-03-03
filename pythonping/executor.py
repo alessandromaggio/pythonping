@@ -77,7 +77,7 @@ class Response:
         :type time_elapsed: float
         :param source_request: ICMP packet represeting the request that originated this response
         :type source_request: ICMP
-        :param repr_format: How to __repr__ the response. Allowed: legacy, None
+        :param repr_format: How to __repr__ the response. Allowed: legacy, cisco, None
         :type repr_format: str"""
         self.message = message
         self.time_elapsed = time_elapsed
@@ -137,9 +137,19 @@ class Response:
         # Not successful, but with some code (e.g. destination unreachable)
         return '{0} from {1} in {2}ms'.format(self.error_message, self.message.source, self.time_elapsed_ms)
 
+    def cisco_repr(self):
+        if self.message is None:
+            return '.'
+        elif self.success:
+            return '!'
+        else:
+            return 'U'
+
     def __repr__(self):
         if self.repr_format == 'legacy':
             return self.legacy_repr()
+        if self.repr_format == 'cisco':
+            return self.cisco_repr()
         if self.message is None:
             return 'Timed out'
         if self.success:
@@ -215,7 +225,11 @@ class ResponseList:
 
 
     def append(self, value):
-        self._responses.append(value)
+        if value.repr_format == "cisco" and self._responses:
+            last_value = self._responses[0]
+            self._responses[0]=f'{last_value}{value}'
+        else:
+            self._responses.append(value)
         self.stats_packets_sent += 1
         if len(self) == 1:
             self.rtt_avg = value.time_elapsed
@@ -232,7 +246,10 @@ class ResponseList:
             self.stats_packets_returned += 1
 
         if self.verbose:
-            print(value, file=self.output)
+            if value.repr_format == "cisco":
+                print(value, file=self.output, end="")
+            else:
+                print(value, file=self.output)
 
     @property
     def stats_packets_lost(self):
@@ -288,7 +305,7 @@ class Communicator:
         :type verbose: bool
         :param output: File where to write verbose output, defaults to stdout
         :type output: file
-        :param repr_format: How to __repr__ the response. Allowed: legacy, None
+        :param repr_format: How to __repr__ the response. Allowed: legacy, cisco, None
         :type repr_format: str"""
         self.socket = network.Socket(target, 'icmp', options=socket_options, source=source)
         self.provider = payload_provider
