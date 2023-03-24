@@ -77,12 +77,13 @@ def ping(target,
             SEED_IDs.add(seed_id)
             break
 
+    try:
+        comm = executor.Communicator(target, provider, timeout, interval, socket_options=options, verbose=verbose, output=out,
+                                     seed_id=seed_id, source=source, repr_format=out_format)
 
-    comm = executor.Communicator(target, provider, timeout, interval, socket_options=options, verbose=verbose, output=out,
-                                 seed_id=seed_id, source=source, repr_format=out_format)
+        comm.run(match_payloads=match)
 
-    comm.run(match_payloads=match)
-
-    SEED_IDs.remove(seed_id)
+    finally:
+        SEED_IDs.remove(seed_id)
 
     return comm.responses
