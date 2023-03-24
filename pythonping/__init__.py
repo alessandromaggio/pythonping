@@ -5,7 +5,7 @@ from .utils import random_text
 
 
 # this needs to be available across all thread usages and will hold ints
-SEED_IDs = []
+SEED_IDs = set()
 
 
 def ping(target,
@@ -74,7 +74,7 @@ def ping(target,
         # seed_id needs to be less than or equal to 65535 (as original code was seed_id = getpid() & 0xFFFF)
         seed_id = randint(0x1, 0xFFFF)
         if seed_id not in SEED_IDs:
-            SEED_IDs.append(seed_id)
+            SEED_IDs.add(seed_id)
             break
 
 
