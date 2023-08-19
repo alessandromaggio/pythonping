@@ -5,6 +5,7 @@ import time
 
 class Socket:
     DONT_FRAGMENT = (socket.SOL_IP, 10, 1)           # Option value for raw socket
+    DONT_FRAGMENT_WIN = (socket.IPPROTO_IP, 14, 1)   # use IP_DONTFRAGMENT 14 from ws2ipdef.h
     PROTO_LOOKUP = {"icmp": socket.IPPROTO_ICMP, "tcp": socket.IPPROTO_TCP, "udp": socket.IPPROTO_UDP,
                     "ip": socket.IPPROTO_IP, "raw": socket.IPPROTO_RAW}
 
