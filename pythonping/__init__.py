@@ -66,7 +66,10 @@ def ping(target,
         provider = payload_provider.Repeat(payload, count)
     options = ()
     if df:
-        options = network.Socket.DONT_FRAGMENT
+        if sys.platform.startswith('win'):
+            options = network.Socket.DONT_FRAGMENT_WIN
+        else:
+            options = network.Socket.DONT_FRAGMENT
 
     # Fix to allow for pythonping multithreaded usage;
     # no need to protect this loop as no one will ever surpass 0xFFFF amount of threads
