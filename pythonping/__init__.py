@@ -68,21 +68,24 @@ def ping(target,
     if df:
         options = network.Socket.DONT_FRAGMENT
 
-    # Fix to allow for pythonping multithreaded usage;
-    # no need to protect this loop as no one will ever surpass 0xFFFF amount of threads
-    while True:
-        # seed_id needs to be less than or equal to 65535 (as original code was seed_id = getpid() & 0xFFFF)
-        seed_id = randint(0x1, 0xFFFF)
-        if seed_id not in SEED_IDs:
-            SEED_IDs.append(seed_id)
-            break
+    try:
+        # Fix to allow for pythonping multithreaded usage;
+        # no need to protect this loop as no one will ever surpass 0xFFFF amount of threads
+        while True:
+            # seed_id needs to be less than or equal to 65535 (as original code was seed_id = getpid() & 0xFFFF)
+            seed_id = randint(0x1, 0xFFFF)
+            if seed_id not in SEED_IDs:
+                SEED_IDs.append(seed_id)
+                break
 
 
-    comm = executor.Communicator(target, provider, timeout, interval, socket_options=options, verbose=verbose, output=out,
-                                 seed_id=seed_id, source=source, repr_format=out_format)
+        comm = executor.Communicator(target, provider, timeout, interval, socket_options=options, verbose=verbose, output=out,
+                                    seed_id=seed_id, source=source, repr_format=out_format)
 
-    comm.run(match_payloads=match)
+        comm.run(match_payloads=match)
 
-    SEED_IDs.remove(seed_id)
+    finally:
+        if seed_id in SEED_IDs:
+            SEED_IDs.remove(seed_id)
 
     return comm.responses
