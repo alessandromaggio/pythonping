@@ -79,13 +79,13 @@ Our project directory structure contains all src files in the pythonping folder,
 
 ```
 .
-├── pythonping              # Source files 
+├── pythonping              # Source files
 ├── test                    # Automated Testcases for the package
 ├── CODE_OF_CONDUCT         # An md file containing code of conduct
 ├── CONTRIBUTING            # Contributing Guidlins
 ├── LICENSE                 # MIT License
 ├── README.md               # An md file
-└── setup.py                # Instalation
+└── setup.py                # Installation
 ```
 
 A UML Diagram of the code structure is below:
