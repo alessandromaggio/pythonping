@@ -300,6 +300,7 @@ class Communicator:
         # note that to make Communicator instances thread safe, the seed ID must be unique per thread
         if self.seed_id is None:
             self.seed_id = os.getpid() & 0xFFFF
+        self.sent_times = {}
 
     def __del__(self):
         pass
@@ -314,6 +315,11 @@ class Communicator:
         :param payload: The payload of the ICMP message
         :type payload: Union[str, bytes]
         :rtype: ICMP"""
+
+        # Store sent time per packet by sequence number for elapsed time
+        sent_time = time.time()
+        self.sent_times[sequence_number] = sent_time
+
         i = icmp.ICMP(
             icmp.Types.EchoRequest,
             payload=payload,
@@ -343,6 +349,15 @@ class Communicator:
 
                 # Ensure we have not unpacked the packet we sent (RHEL will also listen to outgoing packets)
                 if response.id == packet_id and response.message_type != icmp.Types.EchoRequest.type_id:
+
+                    # Store received time and retrieve sent time by packet sequence number
+                    # to avoid incorrect latency calculations due to old replies arriving after new sends
+                    received_time = time.time()
+                    sent_time = self.sent_times.get(response.sequence_number, None)
+                    if sent_time:
+                        # Calculate accurate latency for the specific sequence number
+                        time_elapsed = received_time - sent_time
+
                     if payload_pattern is None:
                         # To allow Windows-like behaviour (no payload inspection, but only match packet identifiers),
                         # simply allow for it to be an always true in the legacy usage case
@@ -351,7 +366,7 @@ class Communicator:
                         payload_matched = (payload_pattern == response.payload)
 
                     if payload_matched:
-                        return Response(Message('', response, source_socket[0]), timeout - time_left, source_request, repr_format=self.repr_format)
+                        return Response(Message('', response, source_socket[0]), time_elapsed, source_request, repr_format=self.repr_format)
         return Response(None, timeout, source_request, repr_format=self.repr_format)
 
     @staticmethod
