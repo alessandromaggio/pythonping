@@ -21,7 +21,8 @@ def ping(target,
          out=sys.stdout,
          match=False,
          source=None,
-         out_format='legacy'):
+         out_format='legacy',
+         cisco=False):
     """Pings a remote host and handles the responses
 
     :param target: The remote hostname or IP address to ping
@@ -84,5 +85,17 @@ def ping(target,
     comm.run(match_payloads=match)
 
     SEED_IDs.remove(seed_id)
+
+    if cisco:
+        # Cisco-like summary
+        sent = comm.responses.stats_packets_sent
+        received = comm.responses.stats_packets_returned
+        loss = int((1 - received / sent) * 100)
+        min_rtt = comm.responses.rtt_min_ms
+        avg_rtt = comm.responses.rtt_avg_ms
+        max_rtt = comm.responses.rtt_max_ms
+
+        print(f"\nSuccess rate is {received}/{sent} ({100 - loss}%), "
+              f"round-trip min/avg/max = {min_rtt}/{avg_rtt}/{max_rtt} ms", file=out)
 
     return comm.responses
