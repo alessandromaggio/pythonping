@@ -1,3 +1,4 @@
+import socket
 import sys
 from random import randint
 from . import network, executor, payload_provider
@@ -21,7 +22,8 @@ def ping(target,
          out=sys.stdout,
          match=False,
          source=None,
-         out_format='legacy'):
+         out_format='legacy',
+         device=None):
     """Pings a remote host and handles the responses
 
     :param target: The remote hostname or IP address to ping
@@ -51,8 +53,12 @@ def ping(target,
     8.8.8.8 with 1000 bytes and reply is truncated to only the first 74 of request payload with packet identifiers
     the same in request and reply)
     :type match: bool
-    :param repr_format: How to __repr__ the response. Allowed: legacy, None
-    :type repr_format: str
+    :param source: Source IP for ICMP packets
+    :type source: str
+    :param out_format: How to __repr__ the response. Allowed: legacy, None
+    :type out_format: str
+    :param device: Name of the network interface to use (to bind ICMP socket to).
+    :type device: str
     :return: List with the result of each ping
     :rtype: executor.ResponseList"""
     provider = payload_provider.Repeat(b'', 0)
@@ -64,9 +70,11 @@ def ping(target,
         if not payload:
             payload = random_text(size)
         provider = payload_provider.Repeat(payload, count)
-    options = ()
+    options = []
     if df:
-        options = network.Socket.DONT_FRAGMENT
+        options.append(network.Socket.DONT_FRAGMENT)
+    if device:
+        options.append((socket.SOL_SOCKET, socket.SO_BINDTODEVICE, device.encode('utf-8') + b'\0'))
 
     # Fix to allow for pythonping multithreaded usage;
     # no need to protect this loop as no one will ever surpass 0xFFFF amount of threads

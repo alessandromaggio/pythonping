@@ -268,7 +268,7 @@ class ResponseList:
 
 class Communicator:
     """Instance actually communicating over the network, sending messages and handling responses"""
-    def __init__(self, target, payload_provider, timeout, interval, socket_options=(), seed_id=None,
+    def __init__(self, target, payload_provider, timeout, interval, socket_options=None, seed_id=None,
                  verbose=False, output=sys.stdout, source=None, repr_format=None):
         """Creates an instance that can handle communication with the target device
 
@@ -281,7 +281,7 @@ class Communicator:
         :param interval: Interval to wait between pings, in seconds
         :type interval: int
         :param socket_options: Options to specify for the network.Socket
-        :type socket_options: tuple
+        :type socket_options: list[tuple[int, int, int | Buffer]
         :param seed_id: The first ICMP packet ID to use
         :type seed_id: Union[None, int]
         :param verbose: Flag to enable verbose mode, defaults to False
