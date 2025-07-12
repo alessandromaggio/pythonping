@@ -8,7 +8,7 @@ class Socket:
     PROTO_LOOKUP = {"icmp": socket.IPPROTO_ICMP, "tcp": socket.IPPROTO_TCP, "udp": socket.IPPROTO_UDP,
                     "ip": socket.IPPROTO_IP, "raw": socket.IPPROTO_RAW}
 
-    def __init__(self, destination, protocol, options=(), buffer_size=2048, source=None):
+    def __init__(self, destination, protocol, options=None, buffer_size=2048, source=None):
         """Creates a network socket to exchange messages
 
         :param destination: Destination IP address
@@ -16,7 +16,7 @@ class Socket:
         :param protocol: Name of the protocol to use
         :type protocol: str
         :param options: Options to set on the socket
-        :type options: tuple
+        :type options: list[tuple[int, int, int | Buffer]
         :param source: Source IP to use - implemented in future releases
         :type source: Union[None, str]
         :param buffer_size: Size in bytes of the listening buffer for incoming packets (replies)
@@ -31,7 +31,8 @@ class Socket:
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_RAW, self.protocol)
         self.source = source
         if options:
-            self.socket.setsockopt(*options)
+            for option in options:
+                self.socket.setsockopt(*option)
 
     # Implementing a version of socket.getprotobyname for this library since built-in is not thread safe
     # for python 3.5, 3.6, and 3.7:
