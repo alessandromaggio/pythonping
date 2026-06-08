@@ -83,6 +83,6 @@ async def aping(target,
         
         await comm.run(match_payloads=match)
 
-    SEED_IDs.remove(seed_id)
+        SEED_IDs.remove(seed_id)
 
-    return comm.responses
+        return comm.responses
