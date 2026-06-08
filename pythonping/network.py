@@ -74,11 +74,21 @@ class Socket:
                 return b'', '', time_left
             packet, source = self.socket.recvfrom(self.buffer_size)
             return packet, source, time_left
+    
+    def close(self):
+        """Close the socket"""
+        self.socket.close()
+    
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.close()
 
     def __del__(self):
         try:
             if hasattr(self, "socket") and self.socket:
-                self.socket.close()
+                self.close()
         except AttributeError:
             raise AttributeError("Attribute error because of failed socket init. Make sure you have the root privilege."
                                  " This error may also be caused from DNS resolution problems.")

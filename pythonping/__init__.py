@@ -2,7 +2,7 @@ import sys
 from random import randint
 from . import network, executor, payload_provider
 from .utils import random_text
-
+from .aioping import aping
 
 # this needs to be available across all thread usages and will hold ints
 SEED_IDs = []
@@ -78,11 +78,11 @@ def ping(target,
             break
 
 
-    comm = executor.Communicator(target, provider, timeout, interval, socket_options=options, verbose=verbose, output=out,
-                                 seed_id=seed_id, source=source, repr_format=out_format)
+    with executor.Communicator(target, provider, timeout, interval, socket_options=options, verbose=verbose, output=out,
+                               seed_id=seed_id, source=source, repr_format=out_format) as comm:
 
-    comm.run(match_payloads=match)
+        comm.run(match_payloads=match)
 
-    SEED_IDs.remove(seed_id)
+        SEED_IDs.remove(seed_id)
 
-    return comm.responses
+        return comm.responses
