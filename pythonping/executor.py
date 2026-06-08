@@ -290,7 +290,7 @@ class Communicator:
         :type output: file
         :param repr_format: How to __repr__ the response. Allowed: legacy, None
         :type repr_format: str"""
-        self.socket = network.Socket(target, 'icmp', options=socket_options, source=source)
+        self.socket = self._create_socket(target, 'icmp', options=socket_options, source=source)
         self.provider = payload_provider
         self.timeout = timeout
         self.interval = interval
@@ -300,6 +300,16 @@ class Communicator:
         # note that to make Communicator instances thread safe, the seed ID must be unique per thread
         if self.seed_id is None:
             self.seed_id = os.getpid() & 0xFFFF
+    
+    @staticmethod
+    def _create_socket(
+        target,
+        protocol='icmp',
+        options=(),
+        buffer_size=2048,
+        source=None,
+    ):
+        return network.Socket(target, protocol, options, buffer_size, source)
 
     def __del__(self):
         pass
@@ -386,3 +396,13 @@ class Communicator:
 
             if self.interval:
                 time.sleep(self.interval)
+
+    def close(self):
+        """Closes the socket"""
+        self.socket.close()
+    
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.close()
